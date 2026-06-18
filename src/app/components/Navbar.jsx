@@ -73,13 +73,13 @@ const Navbar = () => {
           >
             Login
           </Button>
+          <Link href="/auth/sign-up">
           <Button
-            as={Link}
-            href="/register"
             className="bg-linear-to-r from-[#066a9b] to-[#0a9fd4] text-white rounded-full px-6 font-semibold shadow-md hover:shadow-[#066a9b]/40 hover:scale-105 transition-all duration-200"
           >
-            Register
+            Get Started
           </Button>
+          </Link>
         </div>
       </header>
 

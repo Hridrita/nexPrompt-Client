@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { BsBoxArrowUpRight } from "react-icons/bs";
 import { FaScroll } from "react-icons/fa";
+import { motion } from "framer-motion";
 
 const trendingTags = [
   "✍️ Blog Writer", "🤖 AI Persona", "💡 Brainstorm", "📧 Cold Email",
@@ -11,6 +12,16 @@ const trendingTags = [
 ];
 
 const floatingWords = ["Create.", "Prompt.", "Discover.", "Bookmark.", "Manage.","Publish."];
+
+const tagContainerVariant = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.04, delayChildren: 0.3 } },
+};
+
+const tagVariant = {
+  hidden: { opacity: 0, y: 12, scale: 0.85 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.35, ease: "easeOut" } },
+};
 
 export default function HeroSection() {
   const [isMounted, setIsMounted] = useState(false);
@@ -140,21 +151,29 @@ export default function HeroSection() {
 
         <div className="mb-10">
           <p className="text-xs text-zinc-400 uppercase tracking-widest mb-3 font-medium">Trending</p>
-          <div className="flex flex-wrap justify-center gap-2">
+          <motion.div
+            className="flex flex-wrap justify-center gap-2"
+            variants={tagContainerVariant}
+            initial="hidden"
+            animate="show"
+          >
             {trendingTags.map(tag => (
-              <button
+              <motion.button
                 key={tag}
+                variants={tagVariant}
+                whileHover={{ scale: 1.08, y: -2 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setActiveTag(activeTag === tag ? null : tag)}
-                className={`px-3.5 py-1.5 rounded-full text-sm font-medium border transition-all duration-200 hover:scale-105 active:scale-95 ${
+                className={`px-3.5 py-1.5 rounded-full text-sm font-medium border transition-colors duration-200 ${
                   activeTag === tag
                     ? "bg-[#066a9b] text-white border-[#066a9b] shadow-md shadow-[#066a9b]/20"
                     : "bg-white text-zinc-600 border-zinc-200 hover:border-[#066a9b]/40 hover:text-[#066a9b] hover:bg-[#066a9b]/4"
                 }`}
               >
                 {tag}
-              </button>
+              </motion.button>
             ))}
-          </div>
+          </motion.div>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">

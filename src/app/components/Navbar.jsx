@@ -65,14 +65,14 @@ const Navbar = () => {
         </ul>
 
         <div className="hidden md:flex items-center gap-3">
+          <Link href="/auth/sign-in">
           <Button
             variant="light"
-            as={Link}
-            href="/login"
             className="text-zinc-600 font-medium"
           >
             Login
           </Button>
+          </Link>
           <Link href="/auth/sign-up">
           <Button
             className="bg-linear-to-r from-[#066a9b] to-[#0a9fd4] text-white rounded-full px-6 font-semibold shadow-md hover:shadow-[#066a9b]/40 hover:scale-105 transition-all duration-200"

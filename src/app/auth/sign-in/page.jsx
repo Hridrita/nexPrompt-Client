@@ -4,33 +4,22 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { FiEye, FiEyeOff, FiUser, FiMail, FiImage, FiLock, FiAlertCircle, FiStar, FiTrendingUp } from "react-icons/fi";
+import { FiEye, FiEyeOff, FiMail, FiLock, FiAlertCircle, FiZap, FiStar, FiTrendingUp } from "react-icons/fi";
 import Link from 'next/link';
 
-/* ---------- zod schema ---------- */
-const signUpSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Name is required")
-    .min(3, "Name must be at least 3 characters"),
+
+const signInSchema = z.object({
   email: z
     .string()
     .min(1, "Email is required")
     .email("Enter a valid email address"),
-  photoUrl: z
-    .string()
-    .min(1, "Photo URL is required")
-    .url("Enter a valid URL"),
   password: z
     .string()
     .min(1, "Password is required")
-    .min(6, "Password must be at least 6 characters")
-    .regex(/[A-Z]/, "Must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Must contain at least one lowercase letter")
-    .regex(/[0-9]/, "Must contain at least one number"),
+    .min(6, "Password must be at least 6 characters"),
 });
 
-/* ---------- animation variants ---------- */
+
 const containerVariant = {
   hidden: { opacity: 0, y: 30, scale: 0.97 },
   show: {
@@ -52,11 +41,14 @@ const errorVariant = {
   exit: { opacity: 0, height: 0, y: -4, transition: { duration: 0.15 } },
 };
 
-/* ---------- reusable field wrapper ---------- */
-function FormField({ label, icon, error, children }) {
+
+function FormField({ label, icon, error, children, rightSlot }) {
   return (
     <motion.div variants={fieldVariant}>
-      <label className="block text-sm font-medium text-zinc-700 mb-1.5">{label}</label>
+      <div className="flex items-center justify-between mb-1.5">
+        <label className="block text-sm font-medium text-zinc-700">{label}</label>
+        {rightSlot}
+      </div>
       <div className="relative">
         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400">
           {icon}
@@ -81,7 +73,7 @@ function FormField({ label, icon, error, children }) {
   );
 }
 
-/* ---------- google icon (inline svg, no extra dep) ---------- */
+
 function GoogleIcon() {
   return (
     <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -93,7 +85,7 @@ function GoogleIcon() {
   );
 }
 
-/* ---------- floating prompt card (decorative, left panel) ---------- */
+
 function FloatingCard({ icon, title, sub, className, delay }) {
   return (
     <motion.div
@@ -116,7 +108,7 @@ function FloatingCard({ icon, title, sub, className, delay }) {
   );
 }
 
-/* ---------- left branding panel ---------- */
+
 function BrandPanel() {
   return (
     <div className="hidden lg:flex relative w-1/2 overflow-hidden bg-gradient-to-br from-[#066a9b] via-[#0a4d72] to-[#03253a]">
@@ -153,7 +145,7 @@ function BrandPanel() {
             transition={{ delay: 0.1, duration: 0.6 }}
             className="text-4xl font-bold leading-tight mb-4"
           >
-            Join the Community <br /> of Prompt Creators
+            Discover & Share <br /> the Best AI Prompts
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
@@ -161,11 +153,11 @@ function BrandPanel() {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="text-white/70 text-base leading-relaxed"
           >
-            Create your free account to publish, bookmark, and review AI prompts for ChatGPT, Gemini, Claude & Midjourney.
+            Join a community-driven marketplace for ChatGPT, Gemini, Claude & Midjourney prompts. Publish, bookmark, and explore what's trending.
           </motion.p>
         </div>
 
-        {/* decorative floating cards */}
+        
         <div className="relative h-44">
           <FloatingCard
             icon={<FiStar className="text-yellow-300" />}
@@ -187,7 +179,7 @@ function BrandPanel() {
   );
 }
 
-export default function SignUp() {
+export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -196,19 +188,19 @@ export default function SignUp() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm({
-    resolver: zodResolver(signUpSchema),
+    resolver: zodResolver(signInSchema),
     mode: "onTouched",
   });
 
   const onSubmit = async (data) => {
-    
-    console.log("Sign up data:", data);
+    await new Promise((res) => setTimeout(res, 1200)); // replace with real API call
+    console.log("Sign in data:", data);
     setSubmitted(true);
   };
 
-  const handleGoogleSignUp = () => {
+  const handleGoogleSignIn = () => {
     // TODO: implement google oauth
-    console.log("Google sign up clicked");
+    console.log("Google sign in clicked");
   };
 
   const inputClass = (hasError) =>
@@ -220,7 +212,7 @@ export default function SignUp() {
 
   return (
     <div className="min-h-screen bg-white flex">
-      
+     
       <BrandPanel />
 
       
@@ -258,22 +250,22 @@ export default function SignUp() {
                 >
                   ✓
                 </motion.div>
-                <h3 className="text-2xl font-bold text-zinc-900 mb-2">Account Created!</h3>
-                <p className="text-zinc-500">Welcome aboard — you're all set.</p>
+                <h3 className="text-2xl font-bold text-zinc-900 mb-2">Welcome Back!</h3>
+                <p className="text-zinc-500">You're signed in successfully.</p>
               </motion.div>
             ) : (
               <motion.div key="form" exit={{ opacity: 0 }}>
                 {/* Header */}
                 <motion.div variants={fieldVariant} className="text-center mb-8">
-                  <h2 className="text-3xl font-bold text-zinc-900">Create Account</h2>
-                  <p className="text-zinc-500 mt-2">Join our community today</p>
+                  <h2 className="text-3xl font-bold text-zinc-900">Welcome Back</h2>
+                  <p className="text-zinc-500 mt-2">Sign in to continue to NexPrompt</p>
                 </motion.div>
 
-                {/* Google Sign Up */}
+                {/* Google Sign In */}
                 <motion.button
                   variants={fieldVariant}
                   type="button"
-                  onClick={handleGoogleSignUp}
+                  onClick={handleGoogleSignIn}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="w-full flex items-center justify-center gap-3 border border-zinc-200 rounded-xl py-3 font-semibold text-zinc-700 hover:bg-zinc-50 hover:border-zinc-300 transition-all duration-200 mb-6"
@@ -285,21 +277,12 @@ export default function SignUp() {
                 {/* Divider */}
                 <motion.div variants={fieldVariant} className="flex items-center gap-3 mb-6">
                   <span className="flex-1 h-px bg-zinc-200" />
-                  <span className="text-xs text-zinc-400 font-medium">OR SIGN UP WITH EMAIL</span>
+                  <span className="text-xs text-zinc-400 font-medium">OR SIGN IN WITH EMAIL</span>
                   <span className="flex-1 h-px bg-zinc-200" />
                 </motion.div>
 
                 {/* Form */}
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
-                  <FormField label="Full Name" icon={<FiUser />} error={errors.name?.message}>
-                    <input
-                      type="text"
-                      {...register("name")}
-                      className={inputClass(errors.name)}
-                      placeholder="Enter your name"
-                    />
-                  </FormField>
-
                   <FormField label="Email Address" icon={<FiMail />} error={errors.email?.message}>
                     <input
                       type="email"
@@ -309,16 +292,16 @@ export default function SignUp() {
                     />
                   </FormField>
 
-                  <FormField label="Photo URL" icon={<FiImage />} error={errors.photoUrl?.message}>
-                    <input
-                      type="text"
-                      {...register("photoUrl")}
-                      className={inputClass(errors.photoUrl)}
-                      placeholder="https://example.com/photo.jpg"
-                    />
-                  </FormField>
-
-                  <FormField label="Password" icon={<FiLock />} error={errors.password?.message}>
+                  <FormField
+                    label="Password"
+                    icon={<FiLock />}
+                    error={errors.password?.message}
+                    rightSlot={
+                      <a href="#" className="text-xs font-semibold text-[#066a9b] hover:underline">
+                        Forgot password?
+                      </a>
+                    }
+                  >
                     <input
                       type={showPassword ? "text" : "password"}
                       {...register("password")}
@@ -335,6 +318,7 @@ export default function SignUp() {
                     </button>
                   </FormField>
 
+                  {/* Submit Button */}
                   <motion.button
                     variants={fieldVariant}
                     type="submit"
@@ -346,19 +330,19 @@ export default function SignUp() {
                     {isSubmitting ? (
                       <>
                         <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                        Creating Account...
+                        Signing In...
                       </>
                     ) : (
-                      "Sign Up"
+                      "Sign In"
                     )}
                   </motion.button>
                 </form>
 
                 {/* Footer */}
                 <motion.p variants={fieldVariant} className="text-center text-sm text-zinc-500 mt-6">
-                  Already have an account?{" "}
-                  <Link href={"/auth/sign-in"} className="text-[#066a9b] font-semibold hover:underline">
-                    Sign in
+                  Don't have an account?{" "}
+                  <Link href="/auth/sign-up" className="text-[#066a9b] font-semibold hover:underline">
+                    Sign up
                   </Link>
                 </motion.p>
               </motion.div>

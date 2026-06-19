@@ -6,6 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { FiEye, FiEyeOff, FiMail, FiLock, FiAlertCircle, FiZap, FiStar, FiTrendingUp } from "react-icons/fi";
 import Link from 'next/link';
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 
 const signInSchema = z.object({
@@ -183,6 +186,8 @@ export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -192,10 +197,23 @@ export default function SignIn() {
     mode: "onTouched",
   });
 
-  const onSubmit = async (data) => {
-    await new Promise((res) => setTimeout(res, 1200)); // replace with real API call
-    console.log("Sign in data:", data);
-    setSubmitted(true);
+  const onSubmit = async (formData) => {
+    
+    console.log("Sign in data:", formData);
+
+    const {data,error} = await authClient.signIn.email({
+        email: formData.email,
+        password: formData.password
+    });
+
+    if(data){
+        setSubmitted(true);
+        router.push('/')
+    }
+
+    if(error){
+        toast.error(error.message || "Something went worng.Please try again!")
+    }
   };
 
   const handleGoogleSignIn = () => {

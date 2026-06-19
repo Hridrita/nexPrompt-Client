@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Avatar, Link, Button } from "@heroui/react";
 import Image from "next/image";
 import { authClient } from "@/lib/auth-client";
+import { usePathname, useRouter } from "next/navigation";
 
 const Navbar = () => {
   const { data: session, isPending } = authClient.useSession();
@@ -11,6 +12,7 @@ const Navbar = () => {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const router = useRouter();
 
   const links = [
     { label: "Home", href: "/" },
@@ -25,6 +27,24 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const pathname = usePathname();
+  const hideNavbar = pathname.startsWith("/auth");
+  if (hideNavbar) {
+    return null;
+  }
+
+  const handleSignOut = async (e) => {
+    e.preventDefault();
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.refresh();
+          router.push("/auth/sign-in");
+        },
+      },
+    });
+  };
 
   return (
     <nav
@@ -45,7 +65,7 @@ const Navbar = () => {
                 alt="NexPrompt Logo"
                 width={20}
                 height={20}
-                className="object-contain brightness-0 invert"
+                className="object-contain"
               />
             </div>
 
@@ -57,29 +77,42 @@ const Navbar = () => {
         </div>
 
         <ul className="hidden md:flex items-center gap-8">
-          {links.map(({ label, href }) => (
-            <li key={label}>
-              <Link
-                href={href}
-                className="text-zinc-600 hover:text-[#066a9b] font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#066a9b] after:transition-all hover:after:w-full"
-              >
-                {label}
-              </Link>
-            </li>
-          ))}
+          {links.map(({ label, href }) => {
+            if (href === "/dashboard" && !user) return null;
+            return (
+              <li key={label}>
+                <Link
+                  href={href}
+                  className="text-zinc-600 hover:text-[#066a9b] font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#066a9b] after:transition-all hover:after:w-full"
+                >
+                  {label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
 
         <div className="hidden md:flex items-center gap-3">
-          {user ? (
+          {isPending ? (
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 border-2 border-t-transparent border-[#066a9b] rounded-full animate-spin"></div>
+              <span className="text-zinc-600 text-sm">Loading...</span>
+            </div>
+          ) : user ? (
             <>
               <div className="flex items-center gap-3">
-                <Avatar
-                  src={user.image || user?.name.charAt(0).toUpperCase()}
+                <Image
+                  src={user.image}
+                  alt={user.name}
+                  width={40}
+                  height={40}
                 />
-                
 
                 <Link href="/auth/sign-in">
-                  <Button className="bg-linear-to-r from-[#066a9b] to-[#0a9fd4] text-white rounded-full px-6 font-semibold shadow-md hover:shadow-[#066a9b]/40 hover:scale-105 transition-all duration-200">
+                  <Button
+                    onClick={handleSignOut}
+                    className="bg-linear-to-r from-[#066a9b] to-[#0a9fd4] text-white rounded-full px-6 font-semibold shadow-md hover:shadow-[#066a9b]/40 hover:scale-105 transition-all duration-200"
+                  >
                     Sign out
                   </Button>
                 </Link>
@@ -116,18 +149,25 @@ const Navbar = () => {
             >
               All Prompt
             </Link>
-            <Link
-              href="/dashboard"
-              className="block py-2 text-zinc-700 font-medium"
-            >
-              Dashboard
-            </Link>
+            {user ? (
+              <Link
+                href="/dashboard"
+                className="block py-2 text-zinc-700 font-medium"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              ""
+            )}
             {user ? (
               <>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Avatar
-                      src={user.image || user?.name.charAt(0).toUpperCase()}
+                    <Image
+                      src={user.image}
+                      alt={user.name}
+                      width={40}
+                      height={40}
                     />
                     <span className="font-medium">
                       {user.name.toUpperCase()}

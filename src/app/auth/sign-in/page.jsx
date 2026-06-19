@@ -129,7 +129,7 @@ function BrandPanel() {
       />
 
       <div className="relative z-10 flex flex-col justify-between p-12 text-white w-full">
-        {/* <motion.div
+        <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -139,7 +139,7 @@ function BrandPanel() {
             <FiZap className="text-[#7fd4f5]" />
           </span>
           <span className="text-lg font-bold tracking-tight">NexPrompt</span>
-        </motion.div> */}
+        </motion.div>
 
         <div className="flex-1 flex flex-col justify-center max-w-md">
           <motion.h1

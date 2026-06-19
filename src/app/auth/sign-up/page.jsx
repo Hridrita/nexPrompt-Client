@@ -14,11 +14,13 @@ import {
   FiAlertCircle,
   FiStar,
   FiTrendingUp,
+  FiZap,
 } from "react-icons/fi";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const signUpSchema = z.object({
   name: z
@@ -37,8 +39,7 @@ const signUpSchema = z.object({
     .regex(/[A-Z]/, "Must contain at least one uppercase letter")
     .regex(/[a-z]/, "Must contain at least one lowercase letter")
     .regex(/[0-9]/, "Must contain at least one number"),
-  role: z
-    .string().min(1, "Role is required"),
+  role: z.string().min(1, "Role is required"),
 });
 
 const containerVariant = {
@@ -165,7 +166,7 @@ function BrandPanel() {
       />
 
       <div className="relative z-10 flex flex-col justify-between p-12 text-white w-full">
-        {/* <motion.div
+        <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -175,7 +176,7 @@ function BrandPanel() {
             <FiZap className="text-[#7fd4f5]" />
           </span>
           <span className="text-lg font-bold tracking-tight">NexPrompt</span>
-        </motion.div> */}
+        </motion.div>
 
         <div className="flex-1 flex flex-col justify-center max-w-md">
           <motion.h1
@@ -223,42 +224,95 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [role, setRole] = useState("Explorer");
+  const [imagePreview, setImagePreview] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [imageUrl, setImageUrl] = useState(" ");
 
   const router = useRouter();
 
   const {
     register,
     handleSubmit,
+    setValue,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(signUpSchema),
     mode: "onTouched",
   });
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    clearErrors("photoUrl");
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError("photoUrl", {
+        type: "manual",
+        message: "Image size exceeds 5MB limit",
+      });
+      return;
+    }
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMAGE_UPLOAD_API;
+      const response = await fetch(
+        `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+      const data = await response.json();
+
+      if (data.success) {
+        const url = data.data.url;
+        setImageUrl(url);
+        setImagePreview(url);
+        setValue("photoUrl", url, { shouldValidate: true });
+      } else {
+        setError("photoUrl", {
+          type: "manual",
+          message: "Image upload failed. Try again",
+        });
+      }
+    } catch (err) {
+      setError("photoUrl", {
+        type: "manual",
+        message: "Something went wrong while uploading",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const onSubmit = async (value) => {
     const formData = {
       ...value,
-      role
-    }
+      role,
+    };
     console.log("Sign up data:", formData);
-    
 
-    const {data,error} = await authClient.signUp.email({
-      name:formData.name,
+    const { data, error } = await authClient.signUp.email({
+      name: formData.name,
       email: formData.email,
       password: formData.password,
       image: formData.photoUrl,
-      role: formData.role
-      })
+      role: formData.role,
+    });
 
-      if(data){
-        setSubmitted(true);
-        router.push("/auth/sign-in");
-      }
-      if(error){
-        toast.error(error.message || "Registration failed. Please try again.")
-      }
-    
+    if (data) {
+      setSubmitted(true);
+      router.push("/auth/sign-in");
+    }
+    if (error) {
+      toast.error(error.message || "Registration failed. Please try again.");
+    }
   };
 
   const handleGoogleSignUp = () => {
@@ -276,7 +330,7 @@ export default function SignUp() {
     <div className="min-h-screen bg-white flex">
       <BrandPanel />
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-4 py-32 relative overflow-hidden">
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-4 py-16 relative overflow-hidden">
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.4] lg:hidden"
           style={{
@@ -396,16 +450,39 @@ export default function SignUp() {
                   </FormField>
 
                   <FormField
-                    label="Photo URL"
+                    label="Profile Photo"
                     icon={<FiImage />}
                     error={errors.photoUrl?.message}
                   >
+                    <label
+                      htmlFor="photoUpload"
+                      className={`${inputClass(errors.photoUrl)} flex items-center cursor-pointer text-zinc-500`}
+                    >
+                      {isUploading
+                        ? "Uploading..."
+                        : imagePreview
+                          ? "Change photo"
+                          : "Choose file"}
+                    </label>
                     <input
-                      type="text"
-                      {...register("photoUrl")}
-                      className={inputClass(errors.photoUrl)}
-                      placeholder="https://example.com/photo.jpg"
+                      id="photoUpload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={isUploading}
+                      className="hidden"
                     />
+                    <input type="hidden" {...register("photoUrl")} />
+
+                    {imagePreview && (
+                      <Image
+                        src={imagePreview}
+                        alt="preview"
+                        width={64}
+                        height={64}
+                        className="w-16 h-16 rounded-full mt-2 object-cover"
+                      />
+                    )}
                   </FormField>
 
                   <FormField

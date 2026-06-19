@@ -1,9 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Link, Button } from "@heroui/react";
+import { Avatar, Link, Button } from "@heroui/react";
 import Image from "next/image";
+import { authClient } from "@/lib/auth-client";
 
 const Navbar = () => {
+  const { data: session, isPending } = authClient.useSession();
+  const user = session?.user;
+  console.log("user session", user);
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -65,21 +70,37 @@ const Navbar = () => {
         </ul>
 
         <div className="hidden md:flex items-center gap-3">
-          <Link href="/auth/sign-in">
-          <Button
-            variant="light"
-            className="text-zinc-600 font-medium"
-          >
-            Login
-          </Button>
-          </Link>
-          <Link href="/auth/sign-up">
-          <Button
-            className="bg-linear-to-r from-[#066a9b] to-[#0a9fd4] text-white rounded-full px-6 font-semibold shadow-md hover:shadow-[#066a9b]/40 hover:scale-105 transition-all duration-200"
-          >
-            Get Started
-          </Button>
-          </Link>
+          {user ? (
+            <>
+              <div className="flex items-center gap-3">
+                <Avatar
+                  src={user.image || user?.name.charAt(0).toUpperCase()}
+                />
+                
+
+                <Link href="/auth/sign-in">
+                  <Button className="bg-linear-to-r from-[#066a9b] to-[#0a9fd4] text-white rounded-full px-6 font-semibold shadow-md hover:shadow-[#066a9b]/40 hover:scale-105 transition-all duration-200">
+                    Sign out
+                  </Button>
+                </Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="hidden md:flex items-center gap-3">
+                <Link href="/auth/sign-in">
+                  <Button variant="light" className="text-zinc-600 font-medium">
+                    Login
+                  </Button>
+                </Link>
+                <Link href="/auth/sign-up">
+                  <Button className="bg-linear-to-r from-[#066a9b] to-[#0a9fd4] text-white rounded-full px-6 font-semibold shadow-md hover:shadow-[#066a9b]/40 hover:scale-105 transition-all duration-200">
+                    Get Started
+                  </Button>
+                </Link>
+              </div>
+            </>
+          )}
         </div>
       </header>
 
@@ -90,16 +111,10 @@ const Navbar = () => {
               Home
             </Link>
             <Link
-              href="/landings"
+              href="/all-prompt"
               className="block py-2 text-zinc-700 font-medium"
             >
-              Landings
-            </Link>
-            <Link
-              href="/blocks"
-              className="block py-2 text-zinc-700 font-medium"
-            >
-              Blocks
+              All Prompt
             </Link>
             <Link
               href="/dashboard"
@@ -107,23 +122,45 @@ const Navbar = () => {
             >
               Dashboard
             </Link>
-            <div className="flex gap-3 pt-2 border-t border-zinc-100">
-              <Button
-                variant="bordered"
-                as={Link}
-                href="/login"
-                className="flex-1 border-zinc-300 text-zinc-700"
-              >
-                Login
-              </Button>
-              <Button
-                className="flex-1 bg-linear-to-r from-[#066a9b] to-[#0a9fd4] text-white rounded-full"
-                as={Link}
-                href="/register"
-              >
-                Buy Now
-              </Button>
-            </div>
+            {user ? (
+              <>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Avatar
+                      src={user.image || user?.name.charAt(0).toUpperCase()}
+                    />
+                    <span className="font-medium">
+                      {user.name.toUpperCase()}
+                    </span>
+                  </div>
+
+                  <Link href="/auth/sign-in">
+                    <Button className="bg-linear-to-r from-[#066a9b] to-[#0a9fd4] text-white rounded-full px-6 font-semibold shadow-md hover:shadow-[#066a9b]/40 hover:scale-105 transition-all duration-200">
+                      Sign out
+                    </Button>
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex gap-3 pt-2 border-t border-zinc-100">
+                  <Link href="/auth/sign-in">
+                    <Button
+                      variant="bordered"
+                      className="flex-1 border-zinc-300 text-zinc-700"
+                    >
+                      Login
+                    </Button>
+                  </Link>
+
+                  <Link href="/auth/sign-up">
+                    <Button className="flex-1 bg-linear-to-r from-[#066a9b] to-[#0a9fd4] text-white rounded-full">
+                      Get Started
+                    </Button>
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

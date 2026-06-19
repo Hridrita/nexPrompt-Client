@@ -17,7 +17,7 @@ const Navbar = () => {
   const links = [
     { label: "Home", href: "/" },
     { label: "All Prompts", href: "/all-prompt" },
-    { label: "Dashboard", href: "/dashboard" },
+    { label: "Dashboard", href: "/dashboard/creator" },
   ];
 
   useEffect(() => {
@@ -29,7 +29,8 @@ const Navbar = () => {
   }, []);
 
   const pathname = usePathname();
-  const hideNavbar = pathname.startsWith("/auth");
+  const hideNavbar = pathname.startsWith("/auth") || pathname.startsWith("/dashboard");
+  
   if (hideNavbar) {
     return null;
   }
@@ -151,7 +152,7 @@ const Navbar = () => {
             </Link>
             {user ? (
               <Link
-                href="/dashboard"
+                href="/dashboard/creator"
                 className="block py-2 text-zinc-700 font-medium"
               >
                 Dashboard
@@ -159,7 +160,13 @@ const Navbar = () => {
             ) : (
               ""
             )}
-            {user ? (
+            { isPending ? (
+              <div className="flex items-center gap-2">
+              <div className="w-5 h-5 border-2 border-t-transparent border-[#066a9b] rounded-full animate-spin"></div>
+              <span className="text-zinc-600 text-sm">Loading...</span>
+            </div>
+            )
+             : user ? (
               <>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">

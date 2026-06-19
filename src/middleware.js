@@ -1,18 +1,17 @@
 import { NextResponse } from "next/server";
-import { auth } from "./lib/auth";
-import { headers } from "next/headers";
-  
-export async function middleware(request) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
 
-    if(session){
-        return NextResponse.next();
+export async function middleware(request) {
+    const sessionToken = request.cookies.get("better-auth.session_token");
+
+    
+    if (!sessionToken) {
+        return NextResponse.redirect(new URL("/auth/sign-in", request.url));
     }
-    return NextResponse.redirect(new URL('/auth/sign-in', request.url))
+
+    return NextResponse.next();
 }
 
 export const config = {
-    matcher: ["/dashboard/:path"]
+    
+    matcher: ["/dashboard/:path*"]
 }

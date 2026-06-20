@@ -29,7 +29,7 @@ const Navbar = () => {
 
   const pathname = usePathname();
   const hideNavbar =
-    pathname.startsWith("/auth") || pathname.startsWith("/dashboard");
+    pathname.startsWith("/auth") || pathname.startsWith("/dashboard") || pathname.startsWith("/unauthorized");
 
   if (hideNavbar) {
     return null;

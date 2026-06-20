@@ -45,19 +45,21 @@ const DashboardLayout = ({ children }) => {
       </div>
 
       <div className="flex-1 flex flex-col gap-4 overflow-hidden">
-        <header className="h-16 bg-[#f3f7fb] rounded-2xl border border-gray-200 flex items-center justify-end px-8 shadow-sm lg:ml-0 ml-12">
+        <header className="h-16 bg-[#f3f7fb] rounded-2xl border border-gray-200 flex items-center px-8 shadow-sm lg:ml-0 ml-12">
           {user ? (
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-gray-600">
-                {user.name}
+            <div className="flex items-center justify-between w-full">
+              <span className="text-xl font-medium text-[#115a88]">
+                welcome back, {user.name}
               </span>
-              <Image
+              <div>
+                <Image
                 src={user.image}
                 alt={user.name}
                 width={40}
                 height={40}
                 className="rounded-full border-3 border-[#115a88] object-cover"
               />
+              </div>
             </div>
           ) : (
             <Link href="/auth/sign-in" className="text-sm">

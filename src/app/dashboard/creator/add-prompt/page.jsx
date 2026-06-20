@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import { UploadCloud, X, Loader2 } from "lucide-react";
+import { createPrompt } from "@/lib/action/prompts";
+import toast from "react-hot-toast";
 
 const schema = z.object({
   title: z.string().min(5, "Title min 5 char").max(100),
@@ -17,7 +19,7 @@ const schema = z.object({
   difficulty: z.enum(["Beginner", "Intermediate", "Pro"], {
     required_error: "Select difficulty",
   }),
-  visibility: z.enum(["Public", "Private"], {
+  visibility: z.enum(["public", "private"], {
     required_error: "Select visibility",
   }),
   thumbnail: z.string().min(1, "Thumbnail required"),
@@ -75,7 +77,7 @@ export default function AddPromptForm() {
   };
 
   const onSubmit = async (data) => {
-    setSubmitting(true);
+    
     const payload = {
       ...data,
       tags: data.tags.split(",").map((t) => t.trim()).filter(Boolean),
@@ -84,8 +86,15 @@ export default function AddPromptForm() {
     };
     try {
       console.log("Submit payload:", payload);
+
+      //api called here
+      const res = await createPrompt(payload);
+
+      if(res.insertedId){
+        toast.success("Prompt created successfully!")
+        setSubmitting(true);
+      }
       
-      // await fetch("/api/prompts", { method: "POST", body: JSON.stringify(payload) });
       reset();
       setPreview(null);
     } finally {
@@ -96,7 +105,7 @@ export default function AddPromptForm() {
   const inputClass =
     "w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0a9fd4] focus:border-transparent transition-all";
 
-  const labelClass = "text-sm font-medium text-gray-700 mb-1.5 block";
+  const labelClass = "text-sm font-medium text-[#115a88] mb-1.5 block";
   const errorClass = "text-xs text-red-500 mt-1";
 
   return (
@@ -108,7 +117,7 @@ export default function AddPromptForm() {
       className="max-w-3xl mx-auto bg-[#f3f7fb] rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 space-y-6"
     >
       <div>
-        <h2 className="text-xl font-semibold text-gray-800">Create New Prompt</h2>
+        <h2 className="text-2xl font-semibold text-[#115a88]">Create New Prompt</h2>
         <p className="text-sm text-gray-500 mt-1">Fill in details to publish your prompt</p>
       </div>
 

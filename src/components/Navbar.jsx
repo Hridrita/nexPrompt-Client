@@ -17,7 +17,6 @@ const Navbar = () => {
   const links = [
     { label: "Home", href: "/" },
     { label: "All Prompts", href: "/all-prompt" },
-    { label: "Dashboard", href: "/dashboard/creator" },
   ];
 
   useEffect(() => {
@@ -29,8 +28,9 @@ const Navbar = () => {
   }, []);
 
   const pathname = usePathname();
-  const hideNavbar = pathname.startsWith("/auth") || pathname.startsWith("/dashboard");
-  
+  const hideNavbar =
+    pathname.startsWith("/auth") || pathname.startsWith("/dashboard");
+
   if (hideNavbar) {
     return null;
   }
@@ -46,6 +46,14 @@ const Navbar = () => {
       },
     });
   };
+
+  const dashboardLinks = () => {
+    if (user?.role === "user") return "/dashboard/user";
+    if (user?.role === "creator") return "/dashboard/creator";
+    if (user?.role === "admin") return "/dashboard/admin";
+  };
+
+  const dashboardUrl = dashboardLinks();
 
   return (
     <nav
@@ -66,7 +74,7 @@ const Navbar = () => {
                 alt="NexPrompt Logo"
                 width={20}
                 height={20}
-                className="object-contain"
+                className="object-contain brightness-0 invert"
               />
             </div>
 
@@ -78,19 +86,26 @@ const Navbar = () => {
         </div>
 
         <ul className="hidden md:flex items-center gap-8">
-          {links.map(({ label, href }) => {
-            if (href === "/dashboard" && !user) return null;
-            return (
-              <li key={label}>
-                <Link
-                  href={href}
-                  className="text-zinc-600 hover:text-[#066a9b] font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#066a9b] after:transition-all hover:after:w-full"
-                >
-                  {label}
-                </Link>
-              </li>
-            );
-          })}
+          {links.map(({ label, href }) => (
+            <li key={label}>
+              <Link
+                href={href}
+                className="text-zinc-600 hover:text-[#066a9b] font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#066a9b] after:transition-all hover:after:w-full"
+              >
+                {label}
+              </Link>
+            </li>
+          ))}
+          {user && (
+            <li>
+              <Link
+                href={dashboardUrl}
+                className="text-zinc-600 hover:text-[#066a9b] font-medium transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#066a9b] after:transition-all hover:after:w-full"
+              >
+                Dashboard
+              </Link>
+            </li>
+          )}
         </ul>
 
         <div className="hidden md:flex items-center gap-3">
@@ -152,7 +167,7 @@ const Navbar = () => {
             </Link>
             {user ? (
               <Link
-                href="/dashboard/creator"
+                href={dashboardUrl}
                 className="block py-2 text-zinc-700 font-medium"
               >
                 Dashboard
@@ -160,13 +175,12 @@ const Navbar = () => {
             ) : (
               ""
             )}
-            { isPending ? (
+            {isPending ? (
               <div className="flex items-center gap-2">
-              <div className="w-5 h-5 border-2 border-t-transparent border-[#066a9b] rounded-full animate-spin"></div>
-              <span className="text-zinc-600 text-sm">Loading...</span>
-            </div>
-            )
-             : user ? (
+                <div className="w-5 h-5 border-2 border-t-transparent border-[#066a9b] rounded-full animate-spin"></div>
+                <span className="text-zinc-600 text-sm">Loading...</span>
+              </div>
+            ) : user ? (
               <>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">

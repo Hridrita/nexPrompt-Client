@@ -223,7 +223,7 @@ function BrandPanel() {
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [role, setRole] = useState("Explorer");
+  const [role, setRole] = useState("user");
   const [imagePreview, setImagePreview] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState(" ");
@@ -511,7 +511,7 @@ export default function SignUp() {
                       Select Your Role
                     </label>
                     <div className="grid grid-cols-3 gap-3">
-                      {["Explorer", "Creator"].map((option) => (
+                      {["user", "creator"].map((option) => (
                         <label
                           key={option}
                           className={`flex items-center justify-center p-3 rounded-xl border cursor-pointer transition-all ${

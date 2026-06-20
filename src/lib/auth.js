@@ -13,7 +13,7 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
         role: {
-            default: 'Explorer'
+            default: 'user'
         }
     }
   }

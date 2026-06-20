@@ -1,0 +1,128 @@
+"use client";
+import { authClient } from "@/lib/auth-client";
+import {
+  House,
+  Dice4,
+  FileText,
+  FilePlus,
+  Bookmark,
+  Star,
+  Person,
+  CreditCard,
+  Flag,
+  ChartColumn,
+} from "@gravity-ui/icons";
+import { Spinner } from "@heroui/react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { TbLogout2 } from "react-icons/tb";
+
+export function DashboardSidebar({ isOpen, setIsOpen }) {
+  const router = useRouter();
+
+  const { data: session, isPending } = authClient.useSession();
+
+  if (isPending) {
+    return (
+      <div className="flex items-center gap-2 text-white/50 text-sm">
+        <Spinner size="sm" />
+        Loading...
+      </div>
+    );
+  }
+  const user = session?.user;
+
+  const handleSignOut = async (e) => {
+    e.preventDefault();
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.refresh();
+          router.push("/auth/sign-in");
+        },
+      },
+    });
+  };
+
+  const creatorNavItems = [
+    { icon: House, label: "Home", href: "/" },
+    { icon: Dice4, label: "Dashboard", href: "/dashboard/creator" },
+    { icon: FilePlus, label: "Add Prompt", href: "/dashboard/add-prompt" },
+    { icon: FileText, label: "My Prompts", href: "/dashboard/my-prompts" },
+  ];
+
+  const userNavItems = [
+    { icon: House, label: "Home", href: "/" },
+    { icon: Dice4, label: "Dashboard", href: "/dashboard/user" },
+    { icon: FilePlus, label: "Add Prompt", href: "/dashboard/add-prompt" },
+    { icon: FileText, label: "My Prompts", href: "/dashboard/my-prompts" },
+    { icon: Bookmark, label: "Saved Prompts", href: "/dashboard/saved" },
+    { icon: Star, label: "My Reviews", href: "/dashboard/reviews" },
+    { icon: Person, label: "Profile", href: "/dashboard/profile" },
+  ];
+
+  const adminNavItems = [
+    { icon: House, label: "Home", href: "/" },
+    { icon: Person, label: "All Users", href: "/admin/users" },
+    { icon: FileText, label: "All Prompts", href: "/admin/prompts" },
+    { icon: CreditCard, label: "All Payments", href: "/admin/payments" },
+    { icon: Flag, label: "Reported Prompts", href: "/admin/reports" },
+    { icon: ChartColumn, label: "Analytics", href: "/admin/analytics" },
+  ];
+
+  const navLinksMap = {
+    creator: creatorNavItems,
+    user: userNavItems,
+    admin: adminNavItems,
+  };
+
+  const role = user?.role?.toLowerCase() || "user";
+  console.log("role:", user?.role, "resolved:", role);
+
+  const navItems = navLinksMap[role] || navLinksMap["user"];
+
+  return (
+    <div className="w-64 bg-[#115a88] h-full text-white flex flex-col shadow-2xl rounded-2xl">
+      <div className="flex items-center gap-3 p-6 border-b border-white/10">
+        <div className="w-8 h-8 shrink-0 rounded-lg bg-linear-to-br from-[#066a9b] to-[#0a9fd4] flex items-center justify-center shadow-md">
+          <Image
+            src="/assests/icons8-robot-60.png"
+            alt="NexPrompt Logo"
+            width={20}
+            height={20}
+            className="object-contain brightness-0 invert"
+          />
+        </div>
+        <h1 className="font-bold text-2xl tracking-wider text-white">
+          NexPrompt
+        </h1>
+      </div>
+
+      <nav className="flex-1 px-4 py-4 space-y-1">
+        {navItems?.map((item) => (
+          <Link
+            key={item.label}
+            href={item.href}
+            className="flex items-center gap-4 px-4 py-3 text-white/80 hover:bg-white/10 hover:text-white rounded-lg transition-all duration-200"
+          >
+            <item.icon size={20} />
+            <span className="font-medium text-sm">{item.label}</span>
+          </Link>
+        ))}
+      </nav>
+
+      <div className="p-4 border-t border-white/10">
+        <Link href={"/auth/sign-in"}>
+          <button
+            onClick={handleSignOut}
+            className="flex justify-end items-center gap-2 px-4 py-3 text-white/60 hover:text-white w-full transition-colors"
+          >
+            <TbLogout2 size={24} strokeWidth={2.5} />
+            <span className="font-semibold text-base">Sign Out</span>
+          </button>
+        </Link>
+      </div>
+    </div>
+  );
+}

@@ -33,10 +33,8 @@ export default function AddPromptForm() {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-
   const {data:session} = authClient.useSession();
   const user = session?.user;
-  console.log('user from creator add prompt', user);
 
   const {
     register,

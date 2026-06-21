@@ -49,7 +49,7 @@ const DashboardLayout = ({ children }) => {
           {user ? (
             <div className="flex items-center justify-between w-full">
               <span className="text-xl font-medium text-[#115a88]">
-                welcome back, {user.name}
+                WELCOME BACK, {user.name.toUpperCase()}
               </span>
               <div>
                 <Image

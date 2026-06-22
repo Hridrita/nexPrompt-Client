@@ -27,7 +27,7 @@ const SavedPromptsPage = async () => {
       {bookmarks.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {bookmarks.map((item) => (
-            <BookmarkCard key={item._id} title={item.promptTitle} promptID={item.promptId} />
+            <BookmarkCard key={item._id} title={item.promptTitle} promptID={item.promptId} userId={user.id} />
           ))}
         </div>
       ) : (

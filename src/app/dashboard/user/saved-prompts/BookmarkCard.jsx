@@ -2,6 +2,8 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Trash2, ExternalLink } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { removeBookmark } from '@/lib/action/bookmark';
 
 const CATEGORY_STYLES = {
   writing:  { accent: 'bg-[#1B4F72]', badge: 'bg-[#D6EAF8] text-[#1B4F72]', label: 'Writing' },
@@ -10,10 +12,16 @@ const CATEGORY_STYLES = {
   creative: { accent: 'bg-[#C0392B]', badge: 'bg-[#FDEDEC] text-[#7B241C]', label: 'Creative' },
 };
 
-const BookmarkCard = ({ promptID, title, category = 'writing' }) => {
+const BookmarkCard = ({ promptID, title, category = 'writing', userId }) => {
   const style = CATEGORY_STYLES[category] ?? CATEGORY_STYLES.writing;
 
   const handleRemove = async () => {
+    const res = await removeBookmark({ promptId: promptID, userId });
+    if(res?.ok){
+        toast.success("Bookmark removed!")
+    } else {
+        toast.error("Something went wrong.please try again!")
+    }
     console.log("Removing bookmark:", promptID);
   };
 

@@ -1,7 +1,7 @@
 // app/all-prompt/[id]/PromptDetailsClient.jsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -15,6 +15,9 @@ import {
   ChevronDown,
 } from "@gravity-ui/icons";
 import { motion, AnimatePresence } from "framer-motion";
+import toast from "react-hot-toast";
+import { addBookmark, removeBookmark } from "@/lib/action/bookmark";
+import { authClient } from "@/lib/auth-client";
 
 const CATEGORY_STYLES = {
   writing: { bg: "#E6F1FB", text: "#0C447C", dot: "#378ADD" },
@@ -59,6 +62,9 @@ const formatDate = (dateStr) => {
 };
 
 const PromptDetailsClient = ({ prompt }) => {
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
+
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showAllReviews, setShowAllReviews] = useState(false);
@@ -84,6 +90,18 @@ const PromptDetailsClient = ({ prompt }) => {
   const visibleReviews = showAllReviews ? reviews : reviews.slice(0, 3);
   const safeRating = Number(rating) || 0;
 
+  useEffect(() => {
+    if (!user?.id) return;
+    const check = async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/bookmark/check?userId=${user.id}&promptId=${prompt._id}`,
+      );
+      const data = await res.json();
+      setSaved(data.bookmarked);
+    };
+    check();
+  }, [user?.id]);
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(content || "");
@@ -94,6 +112,23 @@ const PromptDetailsClient = ({ prompt }) => {
     }
   };
 
+  const handleBookmark = async (isSaving) => {
+    const payload = {
+      promptId: prompt._id,
+      userId: user.id,
+      promptTitle: title,
+      promptThumbnail: thumbnail,
+    };
+
+    if (isSaving) {
+      await addBookmark(payload);
+      toast.success("Bookmarked!");
+    } else {
+      await removeBookmark({ promptId: prompt._id, userId: user.id });
+      toast.success("Removed Bookmark!");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F7FAFC] pt-28">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -101,12 +136,9 @@ const PromptDetailsClient = ({ prompt }) => {
           initial={{ opacity: 0, x: -8 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
-        >
-          
-        </motion.div>
+        ></motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6 lg:gap-8 items-start">
-         
           <div className="flex flex-col gap-5 sm:gap-6 min-w-0">
             {/* hero card */}
             <motion.div
@@ -115,7 +147,6 @@ const PromptDetailsClient = ({ prompt }) => {
               transition={{ duration: 0.4, ease: "easeOut" }}
               className="relative overflow-hidden rounded-2xl border border-[#C7DFEA] bg-white"
             >
-              
               {thumbnail && (
                 <div className="relative h-36 sm:h-44 w-full overflow-hidden bg-gradient-to-br from-[#115a88] to-[#0c4468]">
                   <Image
@@ -138,7 +169,10 @@ const PromptDetailsClient = ({ prompt }) => {
                   {category && (
                     <span
                       className="rounded-full px-3 py-1 text-[11px] font-medium"
-                      style={{ backgroundColor: catStyle.bg, color: catStyle.text }}
+                      style={{
+                        backgroundColor: catStyle.bg,
+                        color: catStyle.text,
+                      }}
                     >
                       {category}
                     </span>
@@ -146,7 +180,10 @@ const PromptDetailsClient = ({ prompt }) => {
                   {difficulty && (
                     <span
                       className="rounded-full px-3 py-1 text-[11px] font-medium"
-                      style={{ backgroundColor: diffStyle.bg, color: diffStyle.text }}
+                      style={{
+                        backgroundColor: diffStyle.bg,
+                        color: diffStyle.text,
+                      }}
                     >
                       {difficulty}
                     </span>
@@ -171,7 +208,11 @@ const PromptDetailsClient = ({ prompt }) => {
 
                 <div className="relative mt-5 flex flex-wrap items-center gap-4 text-[13px] text-gray-500">
                   <span className="flex items-center gap-1.5">
-                    <StarFill width={14} height={14} className="text-[#BA7517]" />
+                    <StarFill
+                      width={14}
+                      height={14}
+                      className="text-[#BA7517]"
+                    />
                     <span className="font-medium text-gray-700">
                       {safeRating.toFixed(1)}
                     </span>
@@ -239,8 +280,6 @@ const PromptDetailsClient = ({ prompt }) => {
               </pre>
             </motion.div>
 
-
-           
             {tags.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
@@ -259,7 +298,6 @@ const PromptDetailsClient = ({ prompt }) => {
               </motion.div>
             )}
 
-            
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -322,7 +360,7 @@ const PromptDetailsClient = ({ prompt }) => {
                                 height={12}
                                 className="text-gray-300"
                               />
-                            )
+                            ),
                           )}
                         </div>
                         <p className="text-[13.5px] leading-relaxed text-gray-600">
@@ -346,14 +384,12 @@ const PromptDetailsClient = ({ prompt }) => {
             </motion.div>
           </div>
 
-         
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
             className="flex flex-col gap-5 lg:sticky lg:top-6"
           >
-           
             <div className="rounded-2xl border border-[#C7DFEA] bg-white p-5">
               <p className="text-[11px] font-medium uppercase tracking-wide text-gray-400 mb-3">
                 Created by
@@ -397,7 +433,9 @@ const PromptDetailsClient = ({ prompt }) => {
                   <p className="text-[12px] text-[#C7DFEA] mt-0.5">Copies</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-medium">{safeRating.toFixed(1)}</p>
+                  <p className="text-2xl font-medium">
+                    {safeRating.toFixed(1)}
+                  </p>
                   <p className="text-[12px] text-[#C7DFEA] mt-0.5">Rating</p>
                 </div>
               </div>
@@ -413,27 +451,36 @@ const PromptDetailsClient = ({ prompt }) => {
                 <Copy width={15} height={15} />
                 Copy prompt
               </motion.button>
+
+              {/* bookmark button */}
               <motion.button
                 whileTap={{ scale: 0.9 }}
-                onClick={() => setSaved((s) => !s)}
+                onClick={() => {
+                  const next = !saved;
+                  setSaved(next);
+                  handleBookmark(next);
+                }}
                 className={`flex items-center justify-center rounded-xl border px-3.5 transition-colors ${
                   saved
-                    ? "border-[#115a88] bg-[#E6F1FB] text-[#115a88]"
+                    ? "border-red-400 bg-red-50 text-red-500"
                     : "border-[#C7DFEA] text-gray-400 hover:text-[#115a88]"
                 }`}
               >
-                <Bookmark width={17} height={17} />
-
-                
+                <Bookmark
+                  width={17}
+                  height={17}
+                  fill={saved ? "#ef4444" : "none"}
+                  stroke={saved ? "#ef4444" : "currentColor"}
+                />
               </motion.button>
             </div>
             <Link
-            href="/all-prompt"
-            className="mb-5 sm:mb-7 inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#115a88] transition-colors"
-          >
-            <ArrowLeft width={16} height={16} />
-            Back to all prompts
-          </Link>
+              href="/all-prompt"
+              className="mb-5 sm:mb-7 inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#115a88] transition-colors"
+            >
+              <ArrowLeft width={16} height={16} />
+              Back to all prompts
+            </Link>
           </motion.div>
         </div>
       </div>

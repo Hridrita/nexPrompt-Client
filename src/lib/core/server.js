@@ -10,10 +10,10 @@ export const serverFetch = async (path) => {
   return text ? JSON.parse(text) : null;
 };
 
-export const serverMutation = async (path, data) => {
+export const serverMutation = async (path, data, method="POST") => {
   try {
     const res = await fetch(`${baseUrl}${path}`, {
-      method: "POST",
+      method,
       headers: {
         "Content-Type": "application/json",
       },

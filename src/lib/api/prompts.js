@@ -10,7 +10,15 @@ export const getPromptsFromCreators = async() =>{
 }
 
 export const getPromptsByCreators = async(userId) =>{
-    const res = await fetch(`${baseUrl}/api/prompts/${userId}`)
+    const res = await fetch(`${baseUrl}/api/prompts/creator/${userId}`)
     if(!res.ok) return null;
     return res.json();
+}
+
+export const getPromptById = async(id) =>{
+    const res = await fetch(`${baseUrl}/api/prompts/${id}`)
+    if(!res.ok) return null;
+    const data = await res.json();
+    console.log("prompt data:", data);
+    return data;
 }

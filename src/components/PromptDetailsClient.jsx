@@ -19,6 +19,7 @@ import toast from "react-hot-toast";
 import { addBookmark, removeBookmark } from "@/lib/action/bookmark";
 import { authClient } from "@/lib/auth-client";
 import { getCopyCount } from "@/lib/action/copy";
+import { submitReport } from "@/lib/action/report";
 
 const CATEGORY_STYLES = {
   writing: { bg: "#E6F1FB", text: "#0C447C", dot: "#378ADD" },
@@ -69,6 +70,12 @@ const PromptDetailsClient = ({ prompt }) => {
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showAllReviews, setShowAllReviews] = useState(false);
+  const [reviews, setReviews] = useState(prompt.reviews || []);
+  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [reportModal, setReportModal] = useState(false);
+  const [reportForm, setReportForm] = useState({ reason: "", description: "" });
+  const [reporting, setReporting] = useState(false);
 
   const {
     title,
@@ -82,16 +89,16 @@ const PromptDetailsClient = ({ prompt }) => {
     creator = {},
     copyCount = 0,
     rating = 0,
-    reviews = [],
     createdAt,
   } = prompt;
+  console.log('prompt details for creator details', prompt);
 
   const [localCopyCount, setLocalCopyCount] = useState(copyCount);
 
   const catStyle = getCategoryStyle(category);
   const diffStyle = getDifficultyStyle(difficulty);
   const visibleReviews = showAllReviews ? reviews : reviews.slice(0, 3);
-  const safeRating = Number(rating) || 0;
+  const [localRating, setLocalRating] = useState(Number(rating) || 0);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -106,19 +113,22 @@ const PromptDetailsClient = ({ prompt }) => {
   }, [user?.id]);
 
   const handleCopy = async () => {
-  try {
-    await navigator.clipboard.writeText(content || "");
-    setCopied(true);
-    setLocalCopyCount(prev => prev + 1);
-    setTimeout(() => setCopied(false), 2000);
+    if (!user) {
+      toast.error("Login to copy!");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(content || "");
+      setCopied(true);
+      setLocalCopyCount((prev) => prev + 1);
+      setTimeout(() => setCopied(false), 2000);
 
-    await getCopyCount({ promptId: prompt._id });
-    toast.success("prompt copied!")
-
-  } catch (err) {
-    toast.error("Somthing went wrong.Please try again!");
-  }
-};
+      await getCopyCount({ promptId: prompt._id });
+      toast.success("prompt copied!");
+    } catch (err) {
+      toast.error("Somthing went wrong.Please try again!");
+    }
+  };
 
   const handleBookmark = async (isSaving) => {
     const payload = {
@@ -134,6 +144,76 @@ const PromptDetailsClient = ({ prompt }) => {
     } else {
       await removeBookmark({ promptId: prompt._id, userId: user.id });
       toast.success("Removed Bookmark!");
+    }
+  };
+
+  const handleReviewSubmit = async () => {
+    if (!user) return toast.error("Login required!");
+    if (!reviewForm.comment.trim()) return toast.error("Write a comment!");
+
+    setSubmitting(true);
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/prompts/${prompt._id}/review`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: user.name,
+            email: user.email,
+            rating: reviewForm.rating,
+            comment: reviewForm.comment,
+          }),
+        },
+      );
+      if (res.ok) {
+        const newReview = {
+          name: user.name,
+          email: user.email,
+          rating: reviewForm.rating,
+          comment: reviewForm.comment,
+          date: new Date().toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          }),
+        };
+        setReviews((prev) => {
+  const updated = [...prev, newReview];
+  const avg = updated.reduce((sum, r) => sum + (r.rating || 0), 0) / updated.length;
+  setLocalRating(avg);
+  return updated;
+});
+        setReviewForm({ rating: 5, comment: "" });
+        toast.success("Review submitted!");
+      }
+    } catch {
+      toast.error("Failed to submit!");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleReport = async () => {
+    if (!user) return toast.error("Login to report!");
+    if (!reportForm.reason) return toast.error("Select a reason!");
+
+    setReporting(true);
+    try {
+      await submitReport({
+        promptId: prompt._id,
+        promptTitle: title,
+        creatorId: creator._id,
+        reason: reportForm.reason,
+        description: reportForm.description,
+      });
+      toast.success("Report submitted!");
+      setReportModal(false);
+      setReportForm({ reason: "", description: "" });
+    } catch {
+      toast.error("Failed to submit report!");
+    } finally {
+      setReporting(false);
     }
   };
 
@@ -214,6 +294,61 @@ const PromptDetailsClient = ({ prompt }) => {
                   </p>
                 )}
 
+                {user && (
+                  <div className="border-t border-[#C7DFEA] pt-5 mt-5">
+                    <h3 className="text-[14px] font-medium text-gray-800 mb-3">
+                      Leave a review
+                    </h3>
+
+                    {/* Star rating picker */}
+                    <div className="flex items-center gap-1 mb-3">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          onClick={() =>
+                            setReviewForm((p) => ({ ...p, rating: star }))
+                          }
+                        >
+                          {star <= reviewForm.rating ? (
+                            <StarFill
+                              width={18}
+                              height={18}
+                              className="text-[#BA7517]"
+                            />
+                          ) : (
+                            <Star
+                              width={18}
+                              height={18}
+                              className="text-gray-300"
+                            />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+
+                    <textarea
+                      value={reviewForm.comment}
+                      onChange={(e) =>
+                        setReviewForm((p) => ({
+                          ...p,
+                          comment: e.target.value,
+                        }))
+                      }
+                      placeholder="Write your review..."
+                      rows={3}
+                      className="w-full rounded-xl border border-[#C7DFEA] p-3 text-[13.5px] text-gray-700 resize-none focus:outline-none focus:border-[#115a88]"
+                    />
+
+                    <button
+                      onClick={handleReviewSubmit}
+                      disabled={submitting}
+                      className="mt-3 rounded-xl bg-gradient-to-r from-[#066a9b] to-[#0a9fd4] px-4 py-2 text-[13px] font-medium text-white disabled:opacity-60"
+                    >
+                      {submitting ? "Submitting..." : "Submit Review"}
+                    </button>
+                  </div>
+                )}
+
                 <div className="relative mt-5 flex flex-wrap items-center gap-4 text-[13px] text-gray-500">
                   <span className="flex items-center gap-1.5">
                     <StarFill
@@ -222,7 +357,7 @@ const PromptDetailsClient = ({ prompt }) => {
                       className="text-[#BA7517]"
                     />
                     <span className="font-medium text-gray-700">
-                      {safeRating.toFixed(1)}
+                      {localRating.toFixed(1)}
                     </span>
                     ({reviews.length} reviews)
                   </span>
@@ -319,7 +454,7 @@ const PromptDetailsClient = ({ prompt }) => {
                 <span className="flex items-center gap-1.5 text-[13px] text-gray-500">
                   <StarFill width={14} height={14} className="text-[#BA7517]" />
                   <span className="font-medium text-gray-700">
-                    {safeRating.toFixed(1)}
+                    {localRating.toFixed(1)}
                   </span>
                   · {reviews.length}
                 </span>
@@ -372,7 +507,7 @@ const PromptDetailsClient = ({ prompt }) => {
                           )}
                         </div>
                         <p className="text-[13.5px] leading-relaxed text-gray-600">
-                          {review.text}
+                          {review.comment || review.text}
                         </p>
                       </div>
                     </motion.div>
@@ -442,12 +577,83 @@ const PromptDetailsClient = ({ prompt }) => {
                 </div>
                 <div>
                   <p className="text-2xl font-medium">
-                    {safeRating.toFixed(1)}
+                    {localRating.toFixed(1)}
                   </p>
                   <p className="text-[12px] text-[#C7DFEA] mt-0.5">Rating</p>
                 </div>
               </div>
             </div>
+
+            {/* Report Modal */}
+            {reportModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="w-full max-w-md rounded-2xl border border-[#C7DFEA] bg-white p-6"
+                >
+                  <h3 className="text-[15px] font-medium text-gray-900 mb-4">
+                    Report Prompt
+                  </h3>
+
+                  <div className="flex flex-col gap-2 mb-4">
+                    {[
+                      "Inappropriate Content",
+                      "Spam",
+                      "Copyright Violation",
+                      "Misleading",
+                      "Other",
+                    ].map((r) => (
+                      <button
+                        key={r}
+                        onClick={() =>
+                          setReportForm((p) => ({ ...p, reason: r }))
+                        }
+                        className={`rounded-xl border px-4 py-2.5 text-left text-[13.5px] transition-colors ${
+                          reportForm.reason === r
+                            ? "border-[#115a88] bg-[#E6F1FB] text-[#115a88]"
+                            : "border-[#C7DFEA] text-gray-600 hover:bg-[#F7FAFC]"
+                        }`}
+                      >
+                        {r}
+                      </button>
+                    ))}
+                  </div>
+
+                  <textarea
+                    value={reportForm.description}
+                    onChange={(e) =>
+                      setReportForm((p) => ({
+                        ...p,
+                        description: e.target.value,
+                      }))
+                    }
+                    placeholder="Additional details (optional)..."
+                    rows={3}
+                    className="w-full rounded-xl border border-[#C7DFEA] p-3 text-[13.5px] text-gray-700 resize-none focus:outline-none focus:border-[#115a88] mb-4"
+                  />
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        setReportModal(false);
+                        setReportForm({ reason: "", description: "" });
+                      }}
+                      className="flex-1 rounded-xl border border-[#C7DFEA] py-2.5 text-[13px] text-gray-500 hover:bg-[#F7FAFC]"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleReport}
+                      disabled={reporting}
+                      className="flex-1 rounded-xl bg-gradient-to-r from-red-500 to-red-600 py-2.5 text-[13px] font-medium text-white disabled:opacity-60"
+                    >
+                      {reporting ? "Submitting..." : "Submit Report"}
+                    </button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
 
             {/* action buttons */}
             <div className="flex gap-3">
@@ -464,6 +670,10 @@ const PromptDetailsClient = ({ prompt }) => {
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => {
+                  if (!user) {
+                    toast.error("Login to bookmark!");
+                    return;
+                  }
                   const next = !saved;
                   setSaved(next);
                   handleBookmark(next);
@@ -482,6 +692,15 @@ const PromptDetailsClient = ({ prompt }) => {
                 />
               </motion.button>
             </div>
+            <button
+              onClick={() => {
+                if (!user) return toast.error("Login to report!");
+                setReportModal(true);
+              }}
+              className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-red-200 py-2.5 text-[13px] text-red-400 hover:bg-red-50 transition-colors"
+            >
+              Report Prompt
+            </button>
             <Link
               href="/all-prompt"
               className="mb-5 sm:mb-7 inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#115a88] transition-colors"

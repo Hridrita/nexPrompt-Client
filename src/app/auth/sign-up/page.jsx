@@ -298,12 +298,15 @@ export default function SignUp() {
     };
     console.log("Sign up data:", formData);
 
+    const plan = role === 'user' ? 'free_user' : null;
+
     const { data, error } = await authClient.signUp.email({
       name: formData.name,
       email: formData.email,
       password: formData.password,
       image: formData.photoUrl,
       role: formData.role,
+      plan: plan
     });
 
     if (data) {

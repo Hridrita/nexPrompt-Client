@@ -50,15 +50,20 @@ const PremiumPage = () => {
             <h3 className="text-xl font-bold text-slate-800 mb-4">Ready to boost your productivity?</h3>
             <p className="text-sm text-slate-600 mb-6">Secure payment powered by Stripe. Instant access granted after payment.</p>
             
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handlePayment}
-              className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all"
-            >
-              <Zap size={18} />
-              Pay $5.00 Now
-            </motion.button>
+            
+              <form action="/api/checkout_sessions" method="POST">
+    <motion.button
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      type="submit"
+      role="link"
+      className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all"
+    >
+      <Zap size={18} />
+      Pay $5.00 Now
+    </motion.button>
+  </form>
+              
             
             <p className="text-center text-xs text-slate-400 mt-4">100% Secure Payment Process</p>
           </div>

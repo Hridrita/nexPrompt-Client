@@ -697,7 +697,7 @@ const PromptDetailsClient = ({ prompt }) => {
                 if (!user) return toast.error("Login to report!");
                 setReportModal(true);
               }}
-              className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-red-200 py-2.5 text-[13px] text-red-400 hover:bg-red-50 transition-colors"
+              className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-red-500 py-2.5 text-[13px] text-red-500 hover:bg-red-100 transition-colors"
             >
               Report Prompt
             </button>

@@ -17,6 +17,7 @@ const Navbar = () => {
   const links = [
     { label: "Home", href: "/" },
     { label: "All Prompts", href: "/all-prompt" },
+    { label: "payment", href: "/payment" },
   ];
 
   useEffect(() => {

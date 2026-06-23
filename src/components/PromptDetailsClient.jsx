@@ -18,6 +18,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import { addBookmark, removeBookmark } from "@/lib/action/bookmark";
 import { authClient } from "@/lib/auth-client";
+import { getCopyCount } from "@/lib/action/copy";
 
 const CATEGORY_STYLES = {
   writing: { bg: "#E6F1FB", text: "#0C447C", dot: "#378ADD" },
@@ -85,6 +86,8 @@ const PromptDetailsClient = ({ prompt }) => {
     createdAt,
   } = prompt;
 
+  const [localCopyCount, setLocalCopyCount] = useState(copyCount);
+
   const catStyle = getCategoryStyle(category);
   const diffStyle = getDifficultyStyle(difficulty);
   const visibleReviews = showAllReviews ? reviews : reviews.slice(0, 3);
@@ -103,14 +106,19 @@ const PromptDetailsClient = ({ prompt }) => {
   }, [user?.id]);
 
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(content || "");
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("copy failed", err);
-    }
-  };
+  try {
+    await navigator.clipboard.writeText(content || "");
+    setCopied(true);
+    setLocalCopyCount(prev => prev + 1);
+    setTimeout(() => setCopied(false), 2000);
+
+    await getCopyCount({ promptId: prompt._id });
+    toast.success("prompt copied!")
+
+  } catch (err) {
+    toast.error("Somthing went wrong.Please try again!");
+  }
+};
 
   const handleBookmark = async (isSaving) => {
     const payload = {
@@ -220,7 +228,7 @@ const PromptDetailsClient = ({ prompt }) => {
                   </span>
                   <span className="flex items-center gap-1.5">
                     <Copy width={14} height={14} />
-                    {copyCount} copies
+                    {localCopyCount} copies
                   </span>
                   {createdAt && (
                     <span className="text-gray-400">
@@ -429,7 +437,7 @@ const PromptDetailsClient = ({ prompt }) => {
               </p>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-2xl font-medium">{copyCount}</p>
+                  <p className="text-2xl font-medium">{localCopyCount}</p>
                   <p className="text-[12px] text-[#C7DFEA] mt-0.5">Copies</p>
                 </div>
                 <div>

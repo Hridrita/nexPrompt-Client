@@ -21,3 +21,4 @@ export const removeBookmark = async (data) => {
         return { ok: false };
     }
 }
+

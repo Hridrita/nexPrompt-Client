@@ -13,6 +13,7 @@ import {
   Sparkles,
   Bookmark,
   ChevronDown,
+  Lock,
 } from "@gravity-ui/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -20,6 +21,7 @@ import { addBookmark, removeBookmark } from "@/lib/action/bookmark";
 import { authClient } from "@/lib/auth-client";
 import { getCopyCount } from "@/lib/action/copy";
 import { submitReport } from "@/lib/action/report";
+import { useRouter } from "next/navigation";
 
 const CATEGORY_STYLES = {
   writing: { bg: "#E6F1FB", text: "#0C447C", dot: "#378ADD" },
@@ -66,6 +68,7 @@ const formatDate = (dateStr) => {
 const PromptDetailsClient = ({ prompt }) => {
   const { data: session } = authClient.useSession();
   const user = session?.user;
+  const router = useRouter();
 
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -90,6 +93,7 @@ const PromptDetailsClient = ({ prompt }) => {
     copyCount = 0,
     rating = 0,
     createdAt,
+    visibility,
   } = prompt;
   console.log('prompt details for creator details', prompt);
 
@@ -99,6 +103,11 @@ const PromptDetailsClient = ({ prompt }) => {
   const diffStyle = getDifficultyStyle(difficulty);
   const visibleReviews = showAllReviews ? reviews : reviews.slice(0, 3);
   const [localRating, setLocalRating] = useState(Number(rating) || 0);
+
+  // Premium lock logic
+  const isPrivate = visibility === "private";
+  const isPremiumUser = user?.plan === "premium";
+  const isLocked = isPrivate && !isPremiumUser;
 
   useEffect(() => {
     if (!user?.id) return;
@@ -115,6 +124,10 @@ const PromptDetailsClient = ({ prompt }) => {
   const handleCopy = async () => {
     if (!user) {
       toast.error("Login to copy!");
+      return;
+    }
+    if (isLocked) {
+      toast.error("Subscribe to Premium to copy this prompt!");
       return;
     }
     try {
@@ -149,6 +162,7 @@ const PromptDetailsClient = ({ prompt }) => {
 
   const handleReviewSubmit = async () => {
     if (!user) return toast.error("Login required!");
+    if (isLocked) return toast.error("Subscribe to Premium to leave a review!");
     if (!reviewForm.comment.trim()) return toast.error("Write a comment!");
 
     setSubmitting(true);
@@ -179,11 +193,11 @@ const PromptDetailsClient = ({ prompt }) => {
           }),
         };
         setReviews((prev) => {
-  const updated = [...prev, newReview];
-  const avg = updated.reduce((sum, r) => sum + (r.rating || 0), 0) / updated.length;
-  setLocalRating(avg);
-  return updated;
-});
+          const updated = [...prev, newReview];
+          const avg = updated.reduce((sum, r) => sum + (r.rating || 0), 0) / updated.length;
+          setLocalRating(avg);
+          return updated;
+        });
         setReviewForm({ rating: 5, comment: "" });
         toast.success("Review submitted!");
       }
@@ -216,6 +230,40 @@ const PromptDetailsClient = ({ prompt }) => {
       setReporting(false);
     }
   };
+
+  // Premium lock overlay component
+  const PremiumLockOverlay = () => (
+    <div className="relative rounded-2xl border border-[#C7DFEA] bg-white overflow-hidden">
+      {/* Blurred content behind */}
+      <div className="p-5 sm:p-7 select-none pointer-events-none blur-sm opacity-60">
+        <pre className="whitespace-pre-wrap break-words rounded-xl bg-[#0c2e42] p-4 sm:p-5 text-[12.5px] sm:text-[13.5px] leading-relaxed text-[#C7DFEA] font-mono overflow-x-auto">
+          {content?.slice(0, 120)}{"..."}
+        </pre>
+      </div>
+      {/* Lock overlay */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-white/70 backdrop-blur-sm p-6">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#115a88] to-[#0c4468]">
+          <Lock width={24} height={24} className="text-white" />
+        </div>
+        <div className="text-center">
+          <p className="text-[15px] font-semibold text-gray-900 mb-1">Premium Prompt</p>
+          <p className="text-[13px] text-gray-500 max-w-xs">
+            This is a private premium prompt. Subscribe to unlock full content, copy, and leave reviews.
+          </p>
+        </div>
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          onClick={() => {
+    const currentPath = window.location.pathname;
+    router.push(`/payment?redirect=${encodeURIComponent(currentPath)}`);
+  }}
+          className="rounded-xl bg-gradient-to-r from-[#066a9b] to-[#0a9fd4] px-6 py-2.5 text-[13.5px] font-medium text-white hover:from-[#055580] hover:to-[#0888b8] transition-colors"
+        >
+          Subscribe to Premium
+        </motion.button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-[#F7FAFC] pt-28">
@@ -282,6 +330,12 @@ const PromptDetailsClient = ({ prompt }) => {
                       {aiTool}
                     </span>
                   )}
+                  {isPrivate && (
+                    <span className="flex items-center gap-1.5 rounded-full bg-[#FAEEDA] px-3 py-1 text-[11px] font-medium text-[#633806]">
+                      <Lock width={11} height={11} />
+                      Premium
+                    </span>
+                  )}
                 </div>
 
                 <h1 className="relative text-2xl sm:text-3xl font-medium leading-tight text-gray-900 mb-3">
@@ -294,13 +348,13 @@ const PromptDetailsClient = ({ prompt }) => {
                   </p>
                 )}
 
-                {user && (
+                {/* Review form — only show if not locked */}
+                {user && !isLocked && (
                   <div className="border-t border-[#C7DFEA] pt-5 mt-5">
                     <h3 className="text-[14px] font-medium text-gray-800 mb-3">
                       Leave a review
                     </h3>
 
-                    {/* Star rating picker */}
                     <div className="flex items-center gap-1 mb-3">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
@@ -349,6 +403,16 @@ const PromptDetailsClient = ({ prompt }) => {
                   </div>
                 )}
 
+                {/* Locked review CTA */}
+                {user && isLocked && (
+                  <div className="border-t border-[#C7DFEA] pt-5 mt-5">
+                    <p className="text-[13px] text-gray-400 flex items-center gap-1.5">
+                      <Lock width={13} height={13} />
+                      Premium subscription required to leave a review.
+                    </p>
+                  </div>
+                )}
+
                 <div className="relative mt-5 flex flex-wrap items-center gap-4 text-[13px] text-gray-500">
                   <span className="flex items-center gap-1.5">
                     <StarFill
@@ -374,54 +438,64 @@ const PromptDetailsClient = ({ prompt }) => {
               </div>
             </motion.div>
 
-            {/* prompt content */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
-              className="rounded-2xl border border-[#C7DFEA] bg-white p-5 sm:p-7"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-base sm:text-lg font-medium text-gray-900">
-                  Prompt content
-                </h2>
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleCopy}
-                  className="relative flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#066a9b] to-[#0a9fd4] px-3.5 py-2 text-[12.5px] font-medium text-white transition-colors hover:from-[#055580] hover:to-[#0888b8]"
-                >
-                  <AnimatePresence mode="wait" initial={false}>
-                    {copied ? (
-                      <motion.span
-                        key="copied"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        className="flex items-center gap-1.5"
-                      >
-                        <Check width={14} height={14} />
-                        Copied
-                      </motion.span>
-                    ) : (
-                      <motion.span
-                        key="copy"
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        className="flex items-center gap-1.5"
-                      >
-                        <Copy width={14} height={14} />
-                        Copy prompt
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </motion.button>
-              </div>
+            {/* prompt content — locked or full */}
+            {isLocked ? (
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
+              >
+                <PremiumLockOverlay />
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
+                className="rounded-2xl border border-[#C7DFEA] bg-white p-5 sm:p-7"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-base sm:text-lg font-medium text-gray-900">
+                    Prompt content
+                  </h2>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleCopy}
+                    className="relative flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#066a9b] to-[#0a9fd4] px-3.5 py-2 text-[12.5px] font-medium text-white transition-colors hover:from-[#055580] hover:to-[#0888b8]"
+                  >
+                    <AnimatePresence mode="wait" initial={false}>
+                      {copied ? (
+                        <motion.span
+                          key="copied"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          className="flex items-center gap-1.5"
+                        >
+                          <Check width={14} height={14} />
+                          Copied
+                        </motion.span>
+                      ) : (
+                        <motion.span
+                          key="copy"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          className="flex items-center gap-1.5"
+                        >
+                          <Copy width={14} height={14} />
+                          Copy prompt
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </motion.button>
+                </div>
 
-              <pre className="whitespace-pre-wrap break-words rounded-xl bg-[#0c2e42] p-4 sm:p-5 text-[12.5px] sm:text-[13.5px] leading-relaxed text-[#C7DFEA] font-mono overflow-x-auto">
-                {content}
-              </pre>
-            </motion.div>
+                <pre className="whitespace-pre-wrap break-words rounded-xl bg-[#0c2e42] p-4 sm:p-5 text-[12.5px] sm:text-[13.5px] leading-relaxed text-[#C7DFEA] font-mono overflow-x-auto">
+                  {content}
+                </pre>
+              </motion.div>
+            )}
 
             {tags.length > 0 && (
               <motion.div
@@ -660,7 +734,8 @@ const PromptDetailsClient = ({ prompt }) => {
               <motion.button
                 whileTap={{ scale: 0.96 }}
                 onClick={handleCopy}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#066a9b] to-[#0a9fd4] py-3 text-[13.5px] font-medium text-white transition-colors hover:from-[#055580] hover:to-[#0888b8]"
+                disabled={isLocked}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#066a9b] to-[#0a9fd4] py-3 text-[13.5px] font-medium text-white transition-colors hover:from-[#055580] hover:to-[#0888b8] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Copy width={15} height={15} />
                 Copy prompt
@@ -692,6 +767,22 @@ const PromptDetailsClient = ({ prompt }) => {
                 />
               </motion.button>
             </div>
+
+            {/* Subscribe button if locked */}
+            {isLocked && (
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => {
+      const currentPath = window.location.pathname;
+      router.push(`/payment?redirect=${encodeURIComponent(currentPath)}`);
+    }}
+                className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#BA7517] to-[#d4891a] py-3 text-[13.5px] font-medium text-white hover:from-[#9a6013] hover:to-[#b5741a] transition-colors"
+              >
+                <Lock width={15} height={15} />
+                Subscribe to Premium
+              </motion.button>
+            )}
+
             <button
               onClick={() => {
                 if (!user) return toast.error("Login to report!");

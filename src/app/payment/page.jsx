@@ -2,8 +2,11 @@
 import React from "react";
 import { CheckCircle, Crown, Zap } from "lucide-react";
 import { motion } from "framer-motion";
+import { useSearchParams } from "next/navigation";
 
 const PremiumPage = () => {
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect") || "/all-prompt";
   const handlePayment = () => {
     // এখানে আপনার Stripe Payment Logic হবে
     console.log("Redirecting to Stripe checkout...");
@@ -82,6 +85,7 @@ const PremiumPage = () => {
             </p>
 
             <form action="/api/checkout_sessions" method="POST">
+             <input type="hidden" name="redirect" value={redirect} />
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}

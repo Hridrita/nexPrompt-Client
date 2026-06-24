@@ -4,9 +4,15 @@ import { CheckCircle2, Mail, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { addSubscription } from "@/lib/action/subscription";
 import { updateUserPlan } from "@/lib/action/user";
+import RedirectHandler from "@/components/RedirectHandler";
 
 export default async function Success({ searchParams }) {
   const { session_id } = await searchParams;
+  const params = await searchParams;
+
+  const redirectTo = params.redirect || "/all-prompt";
+
+
 
   if (!session_id)
     throw new Error("Please provide a valid session_id (`cs_test_...`)");
@@ -34,12 +40,14 @@ export default async function Success({ searchParams }) {
         email: customerEmail, 
         plan: "premium" 
       });
+      
     } catch (error) {
       console.error("API Call Error:", error);
     }
 
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center pt-32 px-4">
+        <RedirectHandler url={redirectTo} />
         <div className="max-w-md w-full bg-white p-8 rounded-3xl shadow-xl border border-slate-100 text-center">
           {/* Success Icon */}
           <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -65,10 +73,10 @@ export default async function Success({ searchParams }) {
 
           {/* Action Button */}
           <Link
-            href="/"
+            href={redirectTo}
             className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200"
           >
-            Return to Dashboard <ArrowRight size={20} />
+            Return to previous page <ArrowRight size={20} />
           </Link>
 
           <p className="mt-6 text-xs text-slate-400">

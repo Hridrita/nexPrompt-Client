@@ -59,8 +59,8 @@ export function DashboardSidebar({ isOpen, setIsOpen }) {
     { icon: FilePlus, label: "Add Prompt", href: "/dashboard/user/add-prompt" },
     { icon: FileText, label: "My Prompts", href: "/dashboard/user/my-prompts" },
     { icon: Bookmark, label: "Saved Prompts", href: "/dashboard/user/saved-prompts" },
-    { icon: Star, label: "My Reviews", href: "/dashboard/user/reviews" },
-    { icon: Person, label: "Profile", href: "/dashboard/user/profile" },
+    { icon: Star, label: "My Reviews", href: "/dashboard/user/my-reviews" },
+    { icon: Person, label: "Profile", href: "/dashboard/user/my-profile" },
   ];
 
   const adminNavItems = [

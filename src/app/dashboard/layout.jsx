@@ -48,7 +48,7 @@ const DashboardLayout = ({ children }) => {
         <header className="h-16 bg-[#f3f7fb] rounded-2xl border border-gray-200 flex items-center px-8 shadow-sm lg:ml-0 ml-12">
           {user ? (
             <div className="flex items-center justify-between w-full">
-              <span className="text-xl font-medium text-[#115a88]">
+              <span className="text-2xl font-bold text-[#115a88]">
                 WELCOME BACK, {user.name.toUpperCase()}
               </span>
               <div>

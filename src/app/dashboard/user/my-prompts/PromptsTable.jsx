@@ -1,6 +1,8 @@
+// PromptsTable.jsx - সম্পূর্ণ আপডেটেড কোড
+
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Pencil, TrashBin, Xmark, ChevronDown } from "@gravity-ui/icons";
@@ -47,16 +49,34 @@ const Badge = ({ children, className }) => (
   </span>
 );
 
-export default function PromptsTable({ prompts }) {
+export default function PromptsTable({ prompts: initialPrompts }) {
   const router = useRouter();
+  const [prompts, setPrompts] = useState(initialPrompts);
   const [editingPrompt, setEditingPrompt] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [busyId, setBusyId] = useState(null);
+
+  // ✅ Correct: useEffect inside component
+  useEffect(() => {
+    const interval = setInterval(() => {
+      router.refresh();
+    }, 30000); // 30 seconds
+    return () => clearInterval(interval);
+  }, [router]);
+
+  // Update prompts when initialPrompts changes
+  useEffect(() => {
+    setPrompts(initialPrompts);
+  }, [initialPrompts]);
 
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
     const id = deleteTarget._id?.$oid || deleteTarget._id;
     setBusyId(id);
+    
+    // Optimistic update - remove from UI immediately
+    setPrompts(prev => prev.filter(p => (p._id?.$oid || p._id) !== id));
+    
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/prompts/${id}`,
@@ -70,6 +90,8 @@ export default function PromptsTable({ prompts }) {
       router.refresh();
     } catch (err) {
       toast.error(err.message || "Something went wrong, please try again");
+      // Revert on error
+      setPrompts(prev => [...prev, deleteTarget]);
     } finally {
       setBusyId(null);
       setDeleteTarget(null);
@@ -79,6 +101,16 @@ export default function PromptsTable({ prompts }) {
   const handleUpdateSubmit = async (formData) => {
     const id = editingPrompt._id?.$oid || editingPrompt._id;
     setBusyId(id);
+    
+    // Optimistic update
+    setPrompts(prev => 
+      prev.map(p => 
+        (p._id?.$oid || p._id) === id 
+          ? { ...p, ...formData }
+          : p
+      )
+    );
+    
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/prompts/${id}`,
@@ -92,10 +124,11 @@ export default function PromptsTable({ prompts }) {
       const updated = await res.json();
       toast.success(`Updated ${editingPrompt.title}`);
       router.refresh();
-      // TODO: parent state update with `updated`
       setEditingPrompt(null);
     } catch (err) {
       toast.error(err.message || "Something went wrong, please try again");
+      // Revert on error
+      await router.refresh();
     } finally {
       setBusyId(null);
     }
@@ -112,7 +145,7 @@ export default function PromptsTable({ prompts }) {
 
       {prompts.length === 0 ? (
         <Link
-          href="/dashboard/creator/add-prompt"
+          href="/dashboard/user/add-prompt"
           className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-zinc-200 bg-zinc-50/50 py-16 px-6 text-center transition-all hover:border-[#0a9fd4]/30 hover:bg-zinc-50 cursor-pointer group"
         >
           <div className="bg-white p-4 rounded-full shadow-sm border border-zinc-100 mb-4 transition-transform group-hover:scale-105">

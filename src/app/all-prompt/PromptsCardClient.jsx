@@ -56,7 +56,7 @@ const PromptCardsClient = () => {
   }, [search, category, aiTool, difficulty, sort]);
 
   useEffect(() => {
-    const timeout = setTimeout(fetchPrompts, 300); // debounce search
+    const timeout = setTimeout(fetchPrompts, 300); 
     return () => clearTimeout(timeout);
   }, [fetchPrompts]);
 

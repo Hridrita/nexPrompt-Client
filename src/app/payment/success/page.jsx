@@ -76,7 +76,7 @@ export default async function Success({ searchParams }) {
             href={redirectTo}
             className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200"
           >
-            Return to previous page <ArrowRight size={20} />
+            Returning to previous page...<ArrowRight size={20} />
           </Link>
 
           <p className="mt-6 text-xs text-slate-400">

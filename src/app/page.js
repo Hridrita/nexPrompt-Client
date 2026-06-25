@@ -5,15 +5,17 @@ import { TopCreators } from "@/components/TopCreators";
 import { CustomerReviews } from "@/components/CustomReview";
 import { HowItWorks } from "@/components/HowItWorks";
 import { FAQ } from "@/components/FAQ";
+import Featured from "@/components/Featured";
 
 export default function Home() {
   return (
     <div>
       <HeroSection></HeroSection>
-      <HowItWorks></HowItWorks>
+      <Featured></Featured>
       <WhyChooseUs></WhyChooseUs>
       <TopCreators></TopCreators>
       <CustomerReviews></CustomerReviews>
+      <HowItWorks></HowItWorks>
       <FAQ></FAQ>
     </div>
   );

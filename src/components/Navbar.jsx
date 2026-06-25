@@ -74,7 +74,7 @@ const Navbar = () => {
                 alt="NexPrompt Logo"
                 width={20}
                 height={20}
-                className="object-contain brightness-0 invert"
+                className="object-contain brightness-0 invert rounded-full border-2 border-[#066a9b]"
               />
             </div>
 
@@ -122,6 +122,7 @@ const Navbar = () => {
                   alt={user.name}
                   width={40}
                   height={40}
+                  className="rounded-full border-2 border-[#066a9b] object-cover"
                 />
 
                 <Link href="/auth/sign-in">
@@ -189,6 +190,7 @@ const Navbar = () => {
                       alt={user.name}
                       width={40}
                       height={40}
+                      className="rounded-full border-2 border-[#066a9b] object-cover"
                     />
                     <span className="font-medium">
                       {user.name.toUpperCase()}

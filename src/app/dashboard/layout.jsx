@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+
 const DashboardLayout = ({ children }) => {
   const { data: session, isPending } = authClient.useSession();
   const [isMounted, setIsMounted] = useState(false);
@@ -26,6 +27,9 @@ const DashboardLayout = ({ children }) => {
   }
   const user = session?.user;
 
+  const userRole = user?.role || "user";
+  const dashboardPath = `/dashboard/${userRole}`;
+
   return (
     <div className="flex h-screen overflow-hidden bg-[#C7DFEA] p-4 gap-4">
       <button
@@ -39,7 +43,6 @@ const DashboardLayout = ({ children }) => {
         <DashboardSidebar isOpen={isOpen} setIsOpen={setIsOpen} />
       </div>
 
-      
       <div className="lg:hidden">
         <DashboardSidebar isOpen={isOpen} setIsOpen={setIsOpen} />
       </div>
@@ -49,16 +52,28 @@ const DashboardLayout = ({ children }) => {
           {user ? (
             <div className="flex items-center justify-between w-full">
               <span className="text-2xl font-bold text-[#115a88]">
-                WELCOME BACK, {user.name.toUpperCase()}
+                WELCOME BACK, {user.name?.toUpperCase() || "USER"}
               </span>
-              <div>
-                <Image
-                src={user.image}
-                alt={user.name}
-                width={40}
-                height={40}
-                className="rounded-full border-3 border-[#115a88] object-cover"
-              />
+
+              <div className="flex items-center gap-4">
+    
+
+                {/* User Avatar */}
+                <Link href={`${dashboardPath}/profile`}>
+                  {user.image ? (
+                    <Image
+                      src={user.image}
+                      alt={user.name || "User"}
+                      width={40}
+                      height={40}
+                      className="rounded-full border-3 border-[#115a88] object-cover hover:shadow-md transition-shadow cursor-pointer"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#115a88] to-[#0a9fd4] flex items-center justify-center text-white font-bold text-sm border-3 border-[#115a88] hover:shadow-md transition-shadow cursor-pointer">
+                      {user.name?.charAt(0)?.toUpperCase() || "U"}
+                    </div>
+                  )}
+                </Link>
               </div>
             </div>
           ) : (
@@ -69,9 +84,7 @@ const DashboardLayout = ({ children }) => {
         </header>
 
         <main className="flex-1 overflow-y-auto">
-          <div className=" rounded-2xl p-6 min-h-[80vh]">
-            {children}
-          </div>
+          <div className="rounded-2xl p-6 min-h-[80vh]">{children}</div>
         </main>
       </div>
     </div>

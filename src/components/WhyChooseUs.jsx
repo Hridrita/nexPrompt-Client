@@ -1,112 +1,225 @@
 "use client";
-import { useState } from "react";
+
 import { motion } from "framer-motion";
-import { FaBolt, FaUsers, FaLock, FaHeart } from "react-icons/fa";
-import { FiTarget } from "react-icons/fi";
-import { IoInfinite } from "react-icons/io5";
+import {
+  FaRocket,
+  FaUsers,
+  FaShieldAlt,
+  FaHeart,
+  FaSync,
+  FaMagic,
+} from "react-icons/fa";
+import { FiTarget, FiTrendingUp, FiAward } from "react-icons/fi";
 
 const features = [
-  { title: "Fast Delivery", desc: "Get your projects done in record time with our AI-powered workflows.", icon: FaBolt, color: "#066a9b" },
-  { title: "Quality Guaranteed", desc: "Top-tier prompts refined by experts for maximum precision.", icon: FiTarget, color: "#0a9fd4" },
-  { title: "Community Driven", desc: "Join thousands of makers sharing and remixing daily.", icon: FaUsers, color: "#066a9b" },
-  { title: "Secure & Private", desc: "Your data is encrypted and never shared with third parties.", icon: FaLock, color: "#0a9fd4" },
-  { title: "Always Updated", desc: "Fresh prompts added daily based on latest AI models.", icon: IoInfinite, color: "#066a9b" },
-  { title: "Made for You", desc: "Personalized recommendations based on your usage patterns.", icon: FaHeart, color: "#0a9fd4" },
+  {
+    title: "Curated Quality",
+    desc: "Every prompt is handpicked and reviewed by our expert community to ensure the highest quality.",
+    icon: FiAward,
+    color: "#066a9b",
+  },
+  {
+    title: "AI-Powered Discovery",
+    desc: "Find the perfect prompt with smart recommendations based on your needs and preferences.",
+    icon: FaMagic,
+    color: "#0a9fd4",
+  },
+  {
+    title: "Active Community",
+    desc: "Join thousands of creators sharing, remixing, and improving prompts together daily.",
+    icon: FaUsers,
+    color: "#066a9b",
+  },
+  {
+    title: "Secure & Trusted",
+    desc: "Your data and prompts are protected with enterprise-grade security and privacy.",
+    icon: FaShieldAlt,
+    color: "#0a9fd4",
+  },
+  {
+    title: "Always Fresh",
+    desc: "New prompts added daily, keeping you ahead with the latest AI trends and techniques.",
+    icon: FaSync,
+    color: "#066a9b",
+  },
+  {
+    title: "Community Love",
+    desc: "Built by creators, for creators. We're passionate about helping you succeed.",
+    icon: FaHeart,
+    color: "#0a9fd4",
+  },
 ];
 
-const headerVariant = {
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants = {
   hidden: { opacity: 0, y: 30 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
-};
-
-const gridVariant = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.1 } },
-};
-
-const cardVariant = {
-  hidden: { opacity: 0, y: 40, scale: 0.96 },
-  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: "easeOut" } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
 };
 
 export function WhyChooseUs() {
-  const [hovered, setHovered] = useState(null);
-
   return (
-    <section className="py-28 bg-gradient-to-b from-white to-[#066a9b]/5 relative overflow-hidden">
-      <div className="absolute top-10 left-20 w-72 h-72 bg-[#066a9b]/8 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-10 right-20 w-80 h-80 bg-[#0a9fd4]/8 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "2s" }} />
+    <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-b from-white via-[#f8fafc] to-white">
+      {/* Background Decorations */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#066a9b]/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#0a9fd4]/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#066a9b]/[0.03] rounded-full blur-3xl" />
+      </div>
 
-      <svg className="absolute inset-0 w-full h-full opacity-[0.04] pointer-events-none" preserveAspectRatio="none">
-        <line x1="10%" y1="30%" x2="50%" y2="55%" stroke="#066a9b" strokeWidth="1" />
-        <line x1="50%" y1="55%" x2="90%" y2="25%" stroke="#066a9b" strokeWidth="1" />
-        <line x1="20%" y1="80%" x2="50%" y2="55%" stroke="#066a9b" strokeWidth="1" />
-        <line x1="50%" y1="55%" x2="80%" y2="85%" stroke="#066a9b" strokeWidth="1" />
-      </svg>
-
-      <div className="max-w-6xl mx-auto px-6 relative z-10">
+      <div className="max-w-7xl mx-auto relative">
+        {/* Header */}
         <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true, amount: 0.3 }}
           className="text-center mb-16"
-          variants={headerVariant}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.4 }}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#066a9b]/20 bg-[#066a9b]/5 text-[#066a9b] text-xs font-semibold uppercase tracking-widest mb-5">
-            Why NexPrompt
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#066a9b]/20 bg-[#066a9b]/5 text-[#066a9b] text-xs font-semibold uppercase tracking-widest mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#066a9b] animate-pulse" />
+            Why Choose NexPrompt
           </div>
-          <h2 className="text-4xl md:text-5xl font-black text-zinc-900 mb-5">
-            Built different,<br className="hidden md:block" /> built for makers
+
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-zinc-900 mb-5 leading-tight">
+            Built for the{" "}
+            <span className="relative inline-block">
+              <span className="relative z-10 bg-gradient-to-r from-[#066a9b] to-[#0a9fd4] bg-clip-text text-transparent">
+                AI Revolution
+              </span>
+              <svg
+                className="absolute -bottom-1 left-0 w-full h-3 z-0"
+                viewBox="0 0 100 10"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0 5 Q25 0 50 5 T100 5"
+                  stroke="#0a9fd4"
+                  strokeWidth="3"
+                  fill="none"
+                  opacity="0.3"
+                />
+              </svg>
+            </span>
           </h2>
-          <p className="text-zinc-500 max-w-2xl mx-auto text-lg">
-            Everything you need to supercharge your AI workflow, in one place.
+
+          <p className="text-lg text-zinc-500 max-w-2xl mx-auto">
+            Everything you need to create, share, and discover amazing AI
+            prompts
           </p>
         </motion.div>
 
+        {/* Features Grid */}
         <motion.div
-          className="grid md:grid-cols-3 gap-7"
-          variants={gridVariant}
+          variants={containerVariants}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.2 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
         >
-          {features.map((f, i) => (
-            <motion.div
-              key={i}
-              variants={cardVariant}
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
-              whileHover={{ y: -8 }}
-              className="relative p-8 bg-white rounded-3xl border border-zinc-100 shadow-sm hover:shadow-2xl transition-shadow duration-500 group cursor-pointer overflow-hidden"
-              style={{ borderColor: hovered === i ? `${f.color}50` : undefined }}
-            >
-              <div
-                className="absolute -inset-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 blur-2xl"
-                style={{ background: `radial-gradient(circle at 30% 20%, ${f.color}18, transparent 70%)` }}
-              />
-
+          {features.map((feature, index) => {
+            const Icon = feature.icon;
+            return (
               <motion.div
-                className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6"
-                style={{ background: `linear-gradient(135deg, ${f.color}22, ${f.color}0d)` }}
-                whileHover={{ scale: 1.1, rotate: 6 }}
-                transition={{ type: "spring", stiffness: 300 }}
+                key={index}
+                variants={itemVariants}
+                whileHover={{
+                  y: -8,
+                  transition: { duration: 0.3, ease: "easeOut" },
+                }}
+                className="group relative bg-white rounded-2xl border border-gray-100 shadow-sm p-6 lg:p-8 hover:shadow-xl transition-all duration-300"
               >
-                <f.icon style={{ color: f.color }} className="text-2xl" />
+                {/* Hover Gradient */}
+                <div
+                  className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  style={{
+                    background: `linear-gradient(135deg, ${feature.color}08, transparent 70%)`,
+                  }}
+                />
+
+                {/* Icon */}
+                <div
+                  className="relative w-14 h-14 rounded-xl flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110"
+                  style={{
+                    background: `linear-gradient(135deg, ${feature.color}20, ${feature.color}08)`,
+                  }}
+                >
+                  <Icon
+                    className="text-2xl transition-colors duration-300"
+                    style={{ color: feature.color }}
+                  />
+                </div>
+
+                {/* Content */}
+                <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-[#066a9b] transition-colors duration-300">
+                  {feature.title}
+                </h3>
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  {feature.desc}
+                </p>
+
+                {/* Decorative Line */}
+                <div
+                  className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 group-hover:w-3/4 transition-all duration-500 rounded-full"
+                  style={{
+                    background: `linear-gradient(90deg, transparent, ${feature.color}, transparent)`,
+                  }}
+                />
               </motion.div>
+            );
+          })}
+        </motion.div>
 
-              <h3 className="text-xl font-bold mb-3 text-zinc-900 transition-colors" style={{ color: hovered === i ? f.color : undefined }}>
-                {f.title}
-              </h3>
-              <p className="text-zinc-600 leading-relaxed">{f.desc}</p>
-
-              <div
-                className="mt-5 flex items-center font-semibold text-sm opacity-0 group-hover:opacity-100 translate-x-[-6px] group-hover:translate-x-0 transition-all duration-300"
-                style={{ color: f.color }}
+        {/* Bottom CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          viewport={{ once: true, amount: 0.3 }}
+          className="text-center mt-16"
+        >
+          <div className="inline-flex items-center gap-6 bg-white border border-gray-100 rounded-full px-6 py-3 shadow-sm">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-sm text-gray-600">
+                <span className="font-semibold text-gray-900">500+</span> active
+                users
+              </span>
+            </div>
+            <div className="w-px h-6 bg-gray-200" />
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">
+                <span className="font-semibold text-gray-900">1,000+</span>{" "}
+                prompts
+              </span>
+            </div>
+            <div className="w-px h-6 bg-gray-200" />
+            <button className="text-sm font-semibold text-[#066a9b] hover:text-[#0a9fd4] transition-colors flex items-center gap-1">
+              Join the community
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                Learn more <span className="ml-1">→</span>
-              </div>
-            </motion.div>
-          ))}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                />
+              </svg>
+            </button>
+          </div>
         </motion.div>
       </div>
     </section>

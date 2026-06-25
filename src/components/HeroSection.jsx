@@ -97,7 +97,7 @@ export default function HeroSection() {
   if (!isMounted) return null;
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32 mt-15">
 
       <canvas
         ref={canvasRef}
@@ -182,17 +182,17 @@ export default function HeroSection() {
             <span className="flex items-center gap-2"><FaScroll /> Browse All Prompts</span>
           </button>
           <button className="px-8 py-4 border-2 border-zinc-200 text-zinc-700 rounded-2xl font-semibold text-base hover:border-[#066a9b]/40 hover:text-[#066a9b] hover:bg-[#066a9b]/4 transition-all duration-200">
-            <span className="flex items-center gap-2">Submit a Prompt <BsBoxArrowUpRight /></span>
+            <span className="flex items-center gap-2">Create a Prompt <BsBoxArrowUpRight /></span>
           </button>
         </div>
 
-        <div className="mt-12 flex items-center justify-center gap-6 text-sm text-zinc-400">
+        {/* <div className="mt-12 flex items-center justify-center gap-6 text-sm text-zinc-400">
           <span>⭐ 4.9 rating</span>
           <span className="w-px h-4 bg-zinc-200" />
           <span>🧑‍💻 12k+ users</span>
           <span className="w-px h-4 bg-zinc-200" />
           <span>🔄 Updated daily</span>
-        </div>
+        </div> */}
       </div>
 
       <style jsx>{`

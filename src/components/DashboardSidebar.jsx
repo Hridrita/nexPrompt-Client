@@ -68,7 +68,7 @@ export function DashboardSidebar({ isOpen, setIsOpen }) {
     { icon: Person, label: "All Users", href: "/dashboard/admin/all-user" },
     { icon: FileText, label: "All Prompts", href: "/dashboard/admin/all-prompt" },
     { icon: CreditCard, label: "All Payments", href: "/dashboard/admin/all-payments" },
-    { icon: Flag, label: "Reported Prompts", href: "/dashboard/admin/reports" },
+    { icon: Flag, label: "Reported Prompts", href: "/dashboard/admin/reported-prompts" },
     { icon: ChartColumn, label: "Analytics", href: "/dashboard/admin/analytics" },
   ];
 

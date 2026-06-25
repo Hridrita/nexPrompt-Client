@@ -1,5 +1,3 @@
-// app/dashboard/admin/all-prompt/page.jsx
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -238,7 +236,7 @@ const AdminAllPromptPage = () => {
       </div> */}
 
       {/* Filter Tabs */}
-      <div className="flex gap-1 p-1 bg-gray-100 rounded-xl w-fit mb-6">
+      <div className="flex gap-1 p-1 bg-[#115a88] rounded-xl w-fit mb-6">
         {FILTERS.map(({ label, value }) => (
           <button
             key={value}
@@ -246,7 +244,7 @@ const AdminAllPromptPage = () => {
             className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 ${
               filter === value
                 ? "bg-white text-[#115a88] shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
+                : "text-white hover:text-gray-700"
             }`}
           >
             {label}

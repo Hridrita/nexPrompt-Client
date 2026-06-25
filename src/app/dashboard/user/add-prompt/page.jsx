@@ -5,7 +5,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
-import { UploadCloud, X, Loader2, Clock } from "lucide-react";
+import { UploadCloud, X, Loader2, Clock, LayersPlus } from "lucide-react";
 import { createPrompt } from "@/lib/action/prompts";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
@@ -222,7 +222,7 @@ export default function AddPromptForm() {
           className="bg-[#f3f7fb] rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 space-y-6"
         >
           <div>
-            <h2 className="text-2xl font-semibold text-[#115a88]">Create New Prompt</h2>
+            <h2 className="text-2xl font-semibold text-[#115a88]"><span className="flex items-center gap-1"><LayersPlus />Create New Prompt</span></h2>
             <p className="text-sm text-gray-500 mt-1">Fill in details to publish your prompt</p>
           </div>
 

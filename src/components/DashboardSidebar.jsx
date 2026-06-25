@@ -65,7 +65,7 @@ export function DashboardSidebar({ isOpen, setIsOpen }) {
 
   const adminNavItems = [
     { icon: House, label: "Home", href: "/" },
-    { icon: Person, label: "All Users", href: "/dashboard/admin/users" },
+    { icon: Person, label: "All Users", href: "/dashboard/admin/all-user" },
     { icon: FileText, label: "All Prompts", href: "/dashboard/admin/all-prompt" },
     { icon: CreditCard, label: "All Payments", href: "/dashboard/admin/payments" },
     { icon: Flag, label: "Reported Prompts", href: "/dashboard/admin/reports" },

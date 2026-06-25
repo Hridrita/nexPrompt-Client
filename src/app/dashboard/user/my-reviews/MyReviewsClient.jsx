@@ -1,4 +1,5 @@
 "use client";
+import { UserStar } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const MyReviewsClient = ({ reviews = [] }) => {
@@ -42,7 +43,7 @@ const MyReviewsClient = ({ reviews = [] }) => {
   return (
     <div className="w-full">
       <div className="mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
-        <h1 className="text-2xl font-semibold text-[#115a88]">My reviews</h1>
+        <h1 className="text-2xl font-semibold text-[#115a88]"><span className="flex items-center gap-1"><UserStar />My reviews</span></h1>
         <p className="text-sm text-gray-500 mt-1">Prompts you've rated and commented on</p>
       </div>
 

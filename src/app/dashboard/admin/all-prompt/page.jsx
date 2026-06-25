@@ -41,7 +41,6 @@ const AdminAllPromptPage = () => {
     }
   };
 
-  
   const handleApprove = async (promptId) => {
     setProcessingId(promptId);
     try {
@@ -58,7 +57,6 @@ const AdminAllPromptPage = () => {
       
       const data = await res.json();
       toast.success(data.message || "Prompt approved successfully!");
-      
       updatePromptStatus(promptId, "approved");
       
       if (filter !== "all" && filter !== "approved") {
@@ -73,7 +71,6 @@ const AdminAllPromptPage = () => {
     }
   };
 
-  
   const handleReject = async (promptId) => {
     if (!rejectionReason.trim()) {
       toast.error("Please provide a rejection reason");
@@ -98,7 +95,6 @@ const AdminAllPromptPage = () => {
       
       const data = await res.json();
       toast.success(data.message || "Prompt rejected successfully");
-      
       updatePromptStatus(promptId, "rejected", rejectionReason);
       
       if (filter !== "all" && filter !== "rejected") {
@@ -116,7 +112,6 @@ const AdminAllPromptPage = () => {
     }
   };
 
-  
   const handleDelete = async () => {
     if (!deleteModal) return;
     
@@ -135,8 +130,6 @@ const AdminAllPromptPage = () => {
       }
       
       toast.success(`"${promptTitle}" deleted successfully!`);
-      
-      // Remove from list
       setPrompts(prev => prev.filter(p => p._id !== promptId));
       setDeleteModal(null);
     } catch (error) {
@@ -148,7 +141,6 @@ const AdminAllPromptPage = () => {
     }
   };
 
- 
   const handleFeature = async (promptId, currentFeatured) => {
     setProcessingId(promptId);
     try {
@@ -182,7 +174,6 @@ const AdminAllPromptPage = () => {
     }
   };
 
-  
   const updatePromptStatus = (promptId, status, rejectionReason = "") => {
     setPrompts(prev => 
       prev.map(p => 
@@ -200,183 +191,230 @@ const AdminAllPromptPage = () => {
   };
 
   const getStatusBadge = (status) => {
-    const styles = {
-      pending: "bg-amber-50 text-amber-700 border-amber-200",
-      approved: "bg-emerald-50 text-emerald-700 border-emerald-200",
-      rejected: "bg-red-50 text-red-700 border-red-200",
+    const config = {
+      pending: {
+        cls: "bg-amber-50 text-amber-600 border-amber-200 ring-1 ring-amber-100",
+        icon: <Clock className="w-3 h-3" />,
+      },
+      approved: {
+        cls: "bg-emerald-50 text-emerald-600 border-emerald-200 ring-1 ring-emerald-100",
+        icon: <CheckCircle className="w-3 h-3" />,
+      },
+      rejected: {
+        cls: "bg-red-50 text-red-500 border-red-200 ring-1 ring-red-100",
+        icon: <XCircle className="w-3 h-3" />,
+      },
     };
-    const icons = {
-      pending: <Clock className="w-3 h-3" />,
-      approved: <CheckCircle className="w-3 h-3" />,
-      rejected: <XCircle className="w-3 h-3" />,
-    };
+    const { cls, icon } = config[status];
     return (
-      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border ${styles[status]}`}>
-        {icons[status]} {status}
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${cls}`}>
+        {icon}
+        <span className="capitalize">{status}</span>
       </span>
     );
   };
 
-  const FilterButton = ({ label, value }) => (
-    <button
-      onClick={() => setFilter(value)}
-      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-        filter === value
-          ? "bg-[#115a88] text-white"
-          : "bg-white text-gray-600 border border-gray-200 hover:border-[#115a88]"
-      }`}
-    >
-      {label}
-    </button>
-  );
+  const FILTERS = [
+    { label: "All", value: "all" },
+    { label: "Pending", value: "pending" },
+    { label: "Approved", value: "approved" },
+    { label: "Rejected", value: "rejected" },
+  ];
+
+  const COUNTS = {
+    all: prompts.length,
+    pending: prompts.filter(p => p.status === "pending").length,
+    approved: prompts.filter(p => p.status === "approved").length,
+    rejected: prompts.filter(p => p.status === "rejected").length,
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-[#115a88]">All Prompts</h1>
-          <p className="text-sm text-gray-500 mt-1">Review and manage all submitted prompts</p>
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          <FilterButton label="All" value="all" />
-          <FilterButton label="Pending" value="pending" />
-          <FilterButton label="Approved" value="approved" />
-          <FilterButton label="Rejected" value="rejected" />
-        </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      
+      {/* Header */}
+      {/* <div className="mb-6">
+        <h1 className="text-2xl font-bold text-[#115a88]">All Prompts</h1>
+        <p className="text-sm text-gray-400 mt-0.5">Review and manage submitted prompts</p>
+      </div> */}
+
+      {/* Filter Tabs */}
+      <div className="flex gap-1 p-1 bg-gray-100 rounded-xl w-fit mb-6">
+        {FILTERS.map(({ label, value }) => (
+          <button
+            key={value}
+            onClick={() => setFilter(value)}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 ${
+              filter === value
+                ? "bg-white text-[#115a88] shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            {label}
+            <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+              filter === value ? "bg-[#e6f4fb] text-[#115a88]" : "bg-gray-200 text-gray-500"
+            }`}>
+              {COUNTS[value]}
+            </span>
+          </button>
+        ))}
       </div>
 
+      {/* Table */}
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#115a88]"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#115a88]" />
         </div>
       ) : prompts.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
-          <p className="text-gray-500">No prompts found</p>
+        <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
+          <p className="text-gray-400 text-sm">No prompts found for this filter</p>
         </div>
       ) : (
-        <div className="bg-[#f3f7fb] rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="rounded-2xl border border-gray-200 shadow-sm overflow-hidden bg-white">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Prompt Info
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Creator
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Featured
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Copies
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Submitted
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b border-gray-100 bg-[#f8fafc]">
+                  {["Prompt", "Creator", "Status", "Featured", "Copies", "Submitted", "Actions"].map((h) => (
+                    <th
+                      key={h}
+                      className={`px-5 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider ${
+                        h === "Actions" ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody>
                 <AnimatePresence>
-                  {prompts.map((prompt) => {
+                  {prompts.map((prompt, idx) => {
                     const isProcessing = processingId === prompt._id;
                     const isFeatured = prompt.featured || false;
-                    
+
                     return (
                       <motion.tr
                         key={prompt._id}
-                        initial={{ opacity: 0, y: -10 }}
+                        initial={{ opacity: 0, y: -8 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, x: -20 }}
-                        transition={{ duration: 0.2 }}
-                        className="hover:bg-gray-50 transition-colors"
+                        transition={{ duration: 0.18, delay: idx * 0.02 }}
+                        className={`group border-b border-gray-50 hover:bg-[#f8fafd] transition-colors ${
+                          idx % 2 === 0 ? "bg-white" : "bg-[#fafbfc]"
+                        }`}
                       >
-                        <td className="px-6 py-4">
-                          <div className="flex items-center">
-                            {prompt.thumbnail && (
+                        {/* Prompt Info */}
+                        <td className="px-5 py-4 max-w-[260px]">
+                          <div className="flex items-center gap-3">
+                            {prompt.thumbnail ? (
                               <img
                                 src={prompt.thumbnail}
                                 alt={prompt.title}
-                                className="h-10 w-10 rounded-lg object-cover mr-3"
+                                className="h-9 w-9 rounded-lg object-cover flex-shrink-0 border border-gray-100"
                               />
+                            ) : (
+                              <div className="h-9 w-9 rounded-lg bg-[#e6f4fb] flex-shrink-0 flex items-center justify-center text-[#115a88] text-xs font-bold">
+                                {prompt.title?.[0]?.toUpperCase()}
+                              </div>
                             )}
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">{prompt.title}</p>
-                              <p className="text-xs text-gray-500 truncate max-w-xs">{prompt.description}</p>
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold text-gray-800 truncate">
+                                {prompt.title}
+                              </p>
+                              <p className="text-xs text-gray-400 truncate mt-0.5">
+                                {prompt.description}
+                              </p>
                               {prompt.rejectionReason && prompt.status === "rejected" && (
-                                <p className="text-xs text-red-500 mt-1">
-                                  <MessageSquare className="w-3 h-3 inline mr-1" />
-                                  {prompt.rejectionReason}
+                                <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
+                                  <MessageSquare className="w-3 h-3 flex-shrink-0" />
+                                  <span className="truncate">{prompt.rejectionReason}</span>
                                 </p>
                               )}
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div>
-                            <p className="text-sm text-gray-900">{prompt.creator?.name || "Unknown"}</p>
-                            <p className="text-xs text-gray-500">{prompt.creator?.email}</p>
-                            <span className={`text-xs px-2 py-0.5 rounded-full ${
-                              prompt.creator?.plan === "premium" 
-                                ? "bg-purple-100 text-purple-700" 
-                                : "bg-gray-100 text-gray-600"
-                            }`}>
-                              {prompt.creator?.plan || "free"}
-                            </span>
-                          </div>
+
+                        {/* Creator */}
+                        <td className="px-5 py-4">
+                          <p className="text-sm font-medium text-gray-700">
+                            {prompt.creator?.name || "Unknown"}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[140px]">
+                            {prompt.creator?.email}
+                          </p>
+                          <span className={`mt-1 inline-block text-xs px-2 py-0.5 rounded-full font-medium ${
+                            prompt.creator?.plan === "premium"
+                              ? "bg-purple-50 text-purple-600 border border-purple-100"
+                              : "bg-gray-100 text-gray-500"
+                          }`}>
+                            {prompt.creator?.plan || "free"}
+                          </span>
                         </td>
-                        <td className="px-6 py-4">
+
+                        {/* Status */}
+                        <td className="px-5 py-4">
                           {getStatusBadge(prompt.status)}
                         </td>
-                        <td className="px-6 py-4">
+
+                        {/* Featured */}
+                        <td className="px-5 py-4">
                           <button
                             onClick={() => handleFeature(prompt._id, isFeatured)}
                             disabled={isProcessing || prompt.status !== "approved"}
-                            className={`p-1.5 rounded-lg transition-colors ${
-                              isFeatured
-                                ? "text-yellow-500 hover:bg-yellow-50"
-                                : "text-gray-300 hover:bg-gray-100"
-                            } ${(isProcessing || prompt.status !== "approved") && "opacity-50 cursor-not-allowed"}`}
                             title={isFeatured ? "Unfeature" : "Feature"}
+                            className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
+                              isFeatured
+                                ? "text-yellow-500 bg-yellow-50 hover:bg-yellow-100"
+                                : "text-gray-300 hover:bg-gray-100 hover:text-gray-400"
+                            } disabled:opacity-40 disabled:cursor-not-allowed`}
                           >
-                            {isFeatured ? <Star className="w-4 h-4 fill-yellow-500" /> : <StarOff className="w-4 h-4" />}
+                            {isFeatured
+                              ? <Star className="w-4 h-4 fill-yellow-400" />
+                              : <StarOff className="w-4 h-4" />
+                            }
                           </button>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-500">
-                          {prompt.copyCount || 0}
+
+                        {/* Copies */}
+                        <td className="px-5 py-4">
+                          <span className="text-sm font-semibold text-gray-600">
+                            {prompt.copyCount || 0}
+                          </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-500">
-                          {new Date(prompt.createdAt).toLocaleDateString()}
+
+                        {/* Submitted */}
+                        <td className="px-5 py-4">
+                          <span className="text-xs text-gray-400">
+                            {new Date(prompt.createdAt).toLocaleDateString("en-GB", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </span>
                         </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            {/* View */}
+
+                        {/* Actions */}
+                        <td className="px-5 py-4">
+                          <div className="flex items-center justify-end gap-1.5">
                             <Link href={`/all-prompt/${prompt._id}`}>
                               <button
-                                className="p-1.5 text-[#115a88] bg-[#e6f4fb] rounded-lg hover:bg-[#d6ebf4] transition-colors"
+                                className="w-8 h-8 flex items-center justify-center text-[#115a88] bg-[#e6f4fb] rounded-lg hover:bg-[#d0e9f5] transition-colors"
                                 title="View"
                               >
-                                <Eye className="w-4 h-4" />
+                                <Eye className="w-3.5 h-3.5" />
                               </button>
                             </Link>
 
-                            {/* Delete */}
                             <button
                               onClick={() => setDeleteModal({ 
                                 promptId: prompt._id, 
                                 promptTitle: prompt.title 
                               })}
                               disabled={isProcessing}
-                              className="p-1.5 text-red-500 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
+                              className="w-8 h-8 flex items-center justify-center text-red-400 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-40"
                               title="Delete"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-3.5 h-3.5" />
                             </button>
 
                             {prompt.status === "pending" && (
@@ -384,7 +422,7 @@ const AdminAllPromptPage = () => {
                                 <button
                                   onClick={() => handleApprove(prompt._id)}
                                   disabled={isProcessing}
-                                  className="px-3 py-1.5 text-xs font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 flex items-center gap-1"
+                                  className="h-8 px-3 text-xs font-semibold text-white bg-emerald-500 rounded-lg hover:bg-emerald-600 transition-colors disabled:opacity-40 flex items-center gap-1"
                                 >
                                   {isProcessing && processingId === prompt._id ? (
                                     <Loader2 className="w-3 h-3 animate-spin" />
@@ -399,7 +437,7 @@ const AdminAllPromptPage = () => {
                                     promptTitle: prompt.title 
                                   })}
                                   disabled={isProcessing}
-                                  className="px-3 py-1.5 text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-1"
+                                  className="h-8 px-3 text-xs font-semibold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-40 flex items-center gap-1"
                                 >
                                   <XCircle className="w-3 h-3" />
                                   Reject
@@ -414,6 +452,13 @@ const AdminAllPromptPage = () => {
                 </AnimatePresence>
               </tbody>
             </table>
+          </div>
+
+          {/* Footer row count */}
+          <div className="px-5 py-3 bg-[#f8fafc] border-t border-gray-100 flex items-center justify-between">
+            <p className="text-xs text-gray-400">
+              Showing <span className="font-semibold text-gray-600">{prompts.length}</span> prompt{prompts.length !== 1 ? "s" : ""}
+            </p>
           </div>
         </div>
       )}
@@ -475,7 +520,7 @@ const AdminAllPromptPage = () => {
         )}
       </AnimatePresence>
 
-      {/* Reject Modal with Feedback */}
+      {/* Reject Modal */}
       <AnimatePresence>
         {rejectModal && (
           <motion.div

@@ -1,6 +1,7 @@
 import { getBookmarkedPromptByUser } from '@/lib/api/bookmark';
 import { getUserSession } from '@/lib/core/session';
 import BookmarkCard from './BookmarkCard';
+import { Library } from 'lucide-react';
 
 const SavedPromptsPage = async () => {
   const user = await getUserSession();
@@ -13,7 +14,7 @@ const SavedPromptsPage = async () => {
       <div className="bg-[#115a88] rounded-xl px-6 py-5 flex items-start justify-between mb-6">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] uppercase tracking-widest text-[#7FB3D3] font-semibold">
-            🔖 Library
+           <span className='flex gap-1 items-center'> <Library /> Library</span> 
           </span>
           <h1 className="text-[22px] font-bold text-white leading-tight">Saved prompts</h1>
           <p className="text-sm text-[#A8C8DF]">Your personal collection of bookmarked prompts</p>

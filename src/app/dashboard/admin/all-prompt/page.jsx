@@ -6,10 +6,12 @@ import toast from "react-hot-toast";
 import Link from "next/link";
 import { 
   CheckCircle, XCircle, Clock, Eye, Loader2, 
-  Star, StarOff, Trash2, MessageSquare, AlertTriangle
+  Star, StarOff, Trash2, MessageSquare, AlertTriangle,
+  ChevronLeft, ChevronRight
 } from "lucide-react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const ITEMS_PER_PAGE = 10;
 
 const AdminAllPromptPage = () => {
   const [prompts, setPrompts] = useState([]);
@@ -19,24 +21,51 @@ const AdminAllPromptPage = () => {
   const [rejectModal, setRejectModal] = useState(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [deleteModal, setDeleteModal] = useState(null);
+  
+  // Pagination states
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: ITEMS_PER_PAGE,
+    hasNextPage: false,
+    hasPrevPage: false,
+  });
 
   useEffect(() => {
-    fetchPrompts();
+    fetchPrompts(1);
   }, [filter]);
 
-  const fetchPrompts = async () => {
+  const fetchPrompts = async (page = 1) => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/admin/prompts?status=${filter}`);
+      const res = await fetch(
+        `${API_BASE}/api/admin/prompts?status=${filter}&page=${page}&limit=${ITEMS_PER_PAGE}`
+      );
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
-      setPrompts(data);
+      
+      setPrompts(data.prompts || []);
+      setPagination(data.pagination || {
+        currentPage: 1,
+        totalPages: 1,
+        totalItems: 0,
+        itemsPerPage: ITEMS_PER_PAGE,
+        hasNextPage: false,
+        hasPrevPage: false,
+      });
     } catch (error) {
       console.error("Error:", error);
       toast.error("Failed to load prompts");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage === pagination.currentPage || newPage < 1 || newPage > pagination.totalPages) return;
+    fetchPrompts(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleApprove = async (promptId) => {
@@ -63,7 +92,7 @@ const AdminAllPromptPage = () => {
     } catch (error) {
       console.error("Error:", error);
       toast.error(error.message || "Failed to approve");
-      await fetchPrompts();
+      await fetchPrompts(pagination.currentPage);
     } finally {
       setProcessingId(null);
     }
@@ -104,7 +133,7 @@ const AdminAllPromptPage = () => {
     } catch (error) {
       console.error("Error:", error);
       toast.error(error.message || "Failed to reject");
-      await fetchPrompts();
+      await fetchPrompts(pagination.currentPage);
     } finally {
       setProcessingId(null);
     }
@@ -133,7 +162,7 @@ const AdminAllPromptPage = () => {
     } catch (error) {
       console.error("Error:", error);
       toast.error(error.message || "Failed to delete");
-      await fetchPrompts();
+      await fetchPrompts(pagination.currentPage);
     } finally {
       setProcessingId(null);
     }
@@ -166,7 +195,7 @@ const AdminAllPromptPage = () => {
     } catch (error) {
       console.error("Error:", error);
       toast.error(error.message || "Failed to update feature status");
-      await fetchPrompts();
+      await fetchPrompts(pagination.currentPage);
     } finally {
       setProcessingId(null);
     }
@@ -220,13 +249,89 @@ const AdminAllPromptPage = () => {
   ];
 
   const COUNTS = {
-    all: prompts.length,
+    all: pagination.totalItems || 0,
     pending: prompts.filter(p => p.status === "pending").length,
     approved: prompts.filter(p => p.status === "approved").length,
     rejected: prompts.filter(p => p.status === "rejected").length,
   };
 
-  if (loading) {
+  // Pagination Controls Component
+  const PaginationControls = () => {
+    if (pagination.totalPages <= 1) return null;
+
+    const getPageNumbers = () => {
+      const pages = [];
+      const maxVisible = 5;
+      const total = pagination.totalPages;
+      const current = pagination.currentPage;
+
+      if (total <= maxVisible) {
+        for (let i = 1; i <= total; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        
+        let start = Math.max(2, current - 1);
+        let end = Math.min(total - 1, current + 1);
+        
+        if (current <= 2) end = 4;
+        if (current >= total - 1) start = total - 3;
+        
+        if (start > 2) pages.push("...");
+        for (let i = start; i <= end; i++) pages.push(i);
+        if (end < total - 1) pages.push("...");
+        if (total > 1) pages.push(total);
+      }
+      return pages;
+    };
+
+    return (
+      <div className="flex items-center justify-between px-4 sm:px-5 py-3 bg-[#f8fafc] border-t border-[#d6e4ed] flex-wrap gap-2">
+        <p className="text-xs text-gray-400">
+          Showing <span className="font-semibold text-gray-600">{prompts.length}</span> of{" "}
+          <span className="font-semibold text-gray-600">{pagination.totalItems}</span> prompts
+        </p>
+        
+        <div className="flex items-center gap-1 sm:gap-2">
+          <button
+            onClick={() => handlePageChange(pagination.currentPage - 1)}
+            disabled={!pagination.hasPrevPage}
+            className="px-2 sm:px-3 py-1.5 rounded-lg border border-[#C7DFEA] text-xs sm:text-sm font-medium text-gray-600 hover:bg-[#f3f7fb] hover:border-[#115a88] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-1"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Previous</span>
+          </button>
+
+          {getPageNumbers().map((page, index) => (
+            <button
+              key={index}
+              onClick={() => typeof page === "number" && handlePageChange(page)}
+              disabled={page === "..."}
+              className={`min-w-[32px] sm:min-w-[40px] h-8 sm:h-10 px-2 sm:px-3 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                page === pagination.currentPage
+                  ? "bg-[#115a88] text-white shadow-sm"
+                  : page === "..."
+                  ? "cursor-default text-gray-400"
+                  : "text-gray-600 hover:bg-[#f3f7fb] hover:border-[#115a88] border border-transparent"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button
+            onClick={() => handlePageChange(pagination.currentPage + 1)}
+            disabled={!pagination.hasNextPage}
+            className="px-2 sm:px-3 py-1.5 rounded-lg border border-[#C7DFEA] text-xs sm:text-sm font-medium text-gray-600 hover:bg-[#f3f7fb] hover:border-[#115a88] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-1"
+          >
+            <span className="hidden sm:inline">Next</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  if (loading && prompts.length === 0) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#115a88]" />
@@ -244,11 +349,11 @@ const AdminAllPromptPage = () => {
           <p className="text-sm text-gray-400 mt-0.5 hidden sm:block">Review and manage submitted prompts</p>
         </div>
         <div className="text-sm text-gray-400">
-          {prompts.length} total
+          {pagination.totalItems} total
         </div>
       </div>
 
-      {/* Filter Tabs - Scrollable on mobile */}
+      {/* Filter Tabs */}
       <div className="overflow-x-auto pb-2 -mx-3 px-3 sm:mx-0 sm:px-0">
         <div className="flex gap-1 p-1 bg-[#115a88] rounded-xl w-fit min-w-max">
           {FILTERS.map(({ label, value }) => (
@@ -265,16 +370,16 @@ const AdminAllPromptPage = () => {
               <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
                 filter === value ? "bg-[#e6f4fb] text-[#115a88]" : "bg-white/20 text-white/80"
               }`}>
-                {COUNTS[value]}
+                {filter === value ? prompts.length : COUNTS[value]}
               </span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Table - Desktop & Mobile Responsive */}
+      {/* Table */}
       {prompts.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
+        <div className="text-center py-20 bg-white rounded-2xl border border-[#C7DFEA] shadow-sm">
           <p className="text-gray-400 text-sm">No prompts found for this filter</p>
         </div>
       ) : (
@@ -602,12 +707,8 @@ const AdminAllPromptPage = () => {
             })}
           </div>
 
-          {/* Footer row count */}
-          <div className="px-4 sm:px-5 py-3 bg-[#f8fafc] border-t border-[#d6e4ed] flex items-center justify-between">
-            <p className="text-xs text-gray-400">
-              Showing <span className="font-semibold text-gray-600">{prompts.length}</span> prompt{prompts.length !== 1 ? "s" : ""}
-            </p>
-          </div>
+          {/* Pagination Controls */}
+          <PaginationControls />
         </div>
       )}
 

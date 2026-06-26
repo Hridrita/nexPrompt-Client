@@ -268,7 +268,7 @@ export default function CreatorDashboard() {
         className="grid grid-cols-1 lg:grid-cols-2 gap-5"
       >
         {/* Total Copies — Line chart */}
-        <div className="bg-[#eef4f8] rounded-2xl border border-[#C7DFEA] p-5">
+        <div className="bg-white rounded-2xl border border-[#C7DFEA] p-5">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-base font-semibold text-[#0a3d5c]">

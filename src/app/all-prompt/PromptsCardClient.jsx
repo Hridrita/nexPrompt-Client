@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, X } from "lucide-react";
 import PromptCard from "@/components/PromptCard";
+import { getPrompts } from "@/lib/api/prompts";
 
 const CATEGORIES = [
   { value: "", label: "All Categories" },
@@ -39,11 +40,20 @@ const SORTS = [
 ];
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const ITEMS_PER_PAGE = 12;
 
 const PromptCardsClient = () => {
   const router = useRouter();
   const [prompts, setPrompts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: ITEMS_PER_PAGE,
+    hasNextPage: false,
+    hasPrevPage: false,
+  });
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
@@ -51,31 +61,46 @@ const PromptCardsClient = () => {
   const [difficulty, setDifficulty] = useState("");
   const [sort, setSort] = useState("latest");
 
-  const fetchPrompts = useCallback(async () => {
-    setLoading(true);
-    const params = new URLSearchParams();
-    if (search) params.set("search", search);
-    if (category) params.set("category", category);
-    if (aiTool) params.set("aiTool", aiTool);
-    if (difficulty) params.set("difficulty", difficulty);
-    if (sort) params.set("sort", sort);
+  const fetchPrompts = useCallback(async (page = 1) => {
+  setLoading(true);
+  try {
+    const result = await getPrompts({
+      search,
+      category,
+      aiTool,
+      difficulty,
+      sort,
+      page,
+      limit: ITEMS_PER_PAGE,
+    });
 
-    try {
-      const res = await fetch(`${API_BASE}/api/prompts?${params.toString()}`);
-      const data = await res.json();
-      setPrompts(data);
-    } catch (error) {
-      console.error("Error fetching prompts:", error);
-      setPrompts([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [search, category, aiTool, difficulty, sort]);
+    setPrompts(result.prompts || []);
+    setPagination(result.pagination || {
+      currentPage: 1,
+      totalPages: 1,
+      totalItems: 0,
+      itemsPerPage: ITEMS_PER_PAGE,
+      hasNextPage: false,
+      hasPrevPage: false,
+    });
+  } catch (error) {
+    console.error("Error fetching prompts:", error);
+    setPrompts([]);
+  } finally {
+    setLoading(false);
+  }
+}, [search, category, aiTool, difficulty, sort]);
 
   useEffect(() => {
-    const timeout = setTimeout(fetchPrompts, 300);
+    const timeout = setTimeout(() => fetchPrompts(1), 300);
     return () => clearTimeout(timeout);
   }, [fetchPrompts]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage === pagination.currentPage || newPage < 1 || newPage > pagination.totalPages) return;
+    fetchPrompts(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const clearAll = () => {
     setSearch("");
@@ -86,6 +111,73 @@ const PromptCardsClient = () => {
   };
 
   const hasFilters = search || category || aiTool || difficulty || sort !== "latest";
+
+  // Pagination Component
+  const PaginationControls = () => {
+    if (pagination.totalPages <= 1) return null;
+
+    const getPageNumbers = () => {
+      const pages = [];
+      const maxVisible = 5;
+      const total = pagination.totalPages;
+      const current = pagination.currentPage;
+
+      if (total <= maxVisible) {
+        for (let i = 1; i <= total; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        
+        let start = Math.max(2, current - 1);
+        let end = Math.min(total - 1, current + 1);
+        
+        if (current <= 2) end = 4;
+        if (current >= total - 1) start = total - 3;
+        
+        if (start > 2) pages.push("...");
+        for (let i = start; i <= end; i++) pages.push(i);
+        if (end < total - 1) pages.push("...");
+        if (total > 1) pages.push(total);
+      }
+      return pages;
+    };
+
+    return (
+      <div className="flex items-center justify-center gap-1 sm:gap-2 mt-8 flex-wrap">
+        <button
+          onClick={() => handlePageChange(pagination.currentPage - 1)}
+          disabled={!pagination.hasPrevPage}
+          className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-[#C7DFEA] text-xs sm:text-sm font-medium text-gray-600 hover:bg-[#f3f7fb] hover:border-[#115a88] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        >
+          Previous
+        </button>
+
+        {getPageNumbers().map((page, index) => (
+          <button
+            key={index}
+            onClick={() => typeof page === "number" && handlePageChange(page)}
+            disabled={page === "..."}
+            className={`min-w-[32px] sm:min-w-[40px] h-8 sm:h-10 px-2 sm:px-3 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+              page === pagination.currentPage
+                ? "bg-[#115a88] text-white shadow-sm"
+                : page === "..."
+                ? "cursor-default text-gray-400"
+                : "text-gray-600 hover:bg-[#f3f7fb] hover:border-[#115a88] border border-transparent"
+            }`}
+          >
+            {page}
+          </button>
+        ))}
+
+        <button
+          onClick={() => handlePageChange(pagination.currentPage + 1)}
+          disabled={!pagination.hasNextPage}
+          className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-[#C7DFEA] text-xs sm:text-sm font-medium text-gray-600 hover:bg-[#f3f7fb] hover:border-[#115a88] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        >
+          Next
+        </button>
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -239,10 +331,15 @@ const PromptCardsClient = () => {
       )}
 
       {/* Results bar */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <p className="text-sm text-gray-500">
-          {loading ? "Loading..." : `${prompts.length} prompt${prompts.length !== 1 ? "s" : ""}`}
+          {loading ? "Loading..." : `${pagination.totalItems} prompt${pagination.totalItems !== 1 ? "s" : ""}`}
         </p>
+        {!loading && pagination.totalItems > 0 && (
+          <p className="text-xs text-gray-400">
+            Page {pagination.currentPage} of {pagination.totalPages}
+          </p>
+        )}
       </div>
 
       {/* Grid */}
@@ -255,7 +352,7 @@ const PromptCardsClient = () => {
             exit={{ opacity: 0 }}
             className="grid grid-cols-1 gap-4 xs:grid-cols-2 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4"
           >
-            {Array.from({ length: 8 }).map((_, i) => (
+            {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
               <div key={i} className="h-52 rounded-2xl bg-gray-100 animate-pulse" />
             ))}
           </motion.div>
@@ -273,21 +370,26 @@ const PromptCardsClient = () => {
             </button>
           </motion.div>
         ) : (
-          <motion.div
-            key="grid"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="grid grid-cols-1 gap-4 xs:grid-cols-2 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4"
-          >
-            {prompts.map((prompt) => (
-              <PromptCard
-                key={prompt._id}
-                prompt={prompt}
-                onViewDetails={(p) => router.push(`/all-prompt/${p._id}`)}
-              />
-            ))}
-          </motion.div>
+          <>
+            <motion.div
+              key="grid"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="grid grid-cols-1 gap-4 xs:grid-cols-2 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4"
+            >
+              {prompts.map((prompt) => (
+                <PromptCard
+                  key={prompt._id}
+                  prompt={prompt}
+                  onViewDetails={(p) => router.push(`/all-prompt/${p._id}`)}
+                />
+              ))}
+            </motion.div>
+
+            {/* Pagination Controls */}
+            <PaginationControls />
+          </>
         )}
       </AnimatePresence>
     </div>

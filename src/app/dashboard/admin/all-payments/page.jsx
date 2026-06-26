@@ -160,7 +160,7 @@ const AllPaymentsPage = () => {
       className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
         filter === value
           ? "bg-[#115a88] text-white"
-          : "bg-white text-gray-600 border border-gray-200 hover:border-[#115a88]"
+          : "bg-white text-gray-600 border border-[#C7DFEA] hover:border-[#115a88]"
       }`}
     >
       {label}
@@ -169,9 +169,36 @@ const AllPaymentsPage = () => {
 
   const filteredSubscriptions = getFilteredSubscriptions();
 
+  if (loading && subscriptions.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#115a88]" />
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-      {/* Stats Cards - Updated Design */}
+    <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-3">
+      
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#115a88]">All Payments</h1>
+          <p className="text-sm text-gray-400 mt-0.5 hidden sm:block">Manage all subscription payments</p>
+        </div>
+        <button
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#115a88] bg-white border border-[#C7DFEA] rounded-xl hover:bg-[#f0f7fa] transition-all disabled:opacity-50"
+        >
+          <RefreshCw
+            className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
+          />
+          {isRefreshing ? "Refreshing..." : "Refresh"}
+        </button>
+      </div>
+
+      {/* Stats Cards */}
       {stats && (
         <motion.div
           variants={container}
@@ -213,44 +240,32 @@ const AllPaymentsPage = () => {
       )}
 
       {/* Filter Bar */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-gray-400 font-medium mr-2">
-            Filter:
-          </span>
+          <span className="text-xs text-gray-400 font-medium">Filter:</span>
           <FilterButton label="All" value="all" />
           <FilterButton label="Active" value="active" />
           <FilterButton label="Cancelled" value="cancelled" />
           <FilterButton label="Expired" value="expired" />
         </div>
-
-        <button
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#115a88] bg-white border border-[#C7DFEA] rounded-xl hover:bg-[#f0f7fa] transition-all disabled:opacity-50"
-        >
-          <RefreshCw
-            className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
-          />
-          {isRefreshing ? "Refreshing..." : "Refresh"}
-        </button>
+        <span className="text-xs text-gray-400 hidden sm:block">
+          {filteredSubscriptions.length} subscriptions
+        </span>
       </div>
 
-      {/* Subscriptions Table */}
-      {loading && subscriptions.length === 0 ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#115a88]" />
-        </div>
-      ) : filteredSubscriptions.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
+      {/* Subscriptions Table - Desktop */}
+      {filteredSubscriptions.length === 0 ? (
+        <div className="text-center py-20 bg-white rounded-2xl border border-[#C7DFEA] shadow-sm">
           <p className="text-gray-400 text-sm">No subscriptions found</p>
         </div>
       ) : (
-        <div className="rounded-2xl border border-gray-200 shadow-sm overflow-hidden bg-white">
-          <div className="overflow-x-auto">
+        <div className="rounded-2xl border border-[#C7DFEA] shadow-sm overflow-hidden bg-[#f3f7fb]">
+          
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="min-w-full">
               <thead>
-                <tr className="border-b border-gray-100 bg-[#f8fafc]">
+                <tr className="border-b border-[#d6e4ed] bg-[#e6eef5]">
                   {[
                     "User",
                     "Plan",
@@ -262,7 +277,7 @@ const AllPaymentsPage = () => {
                   ].map((h) => (
                     <th
                       key={h}
-                      className={`px-5 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider ${
+                      className={`px-5 py-3.5 text-xs font-semibold text-[#115a88] uppercase tracking-wider ${
                         h === "Actions" ? "text-right" : "text-left"
                       }`}
                     >
@@ -276,7 +291,6 @@ const AllPaymentsPage = () => {
                 <AnimatePresence mode="popLayout">
                   {filteredSubscriptions.map((sub, idx) => {
                     const isProcessing = processingId === sub._id;
-
                     const user = sub.user || {};
 
                     return (
@@ -287,30 +301,26 @@ const AllPaymentsPage = () => {
                         exit={{ opacity: 0, x: -20, scale: 0.9 }}
                         transition={{ duration: 0.2, delay: idx * 0.02 }}
                         layout
-                        className={`border-b border-gray-50 hover:bg-[#f8fafd] transition-colors ${
-                          idx % 2 === 0 ? "bg-white" : "bg-[#fafbfc]"
+                        className={`border-b border-[#d6e4ed] hover:bg-[#eef4f8] transition-colors ${
+                          idx % 2 === 0 ? "bg-white" : "bg-[#f8fafc]"
                         } ${isProcessing ? "opacity-50 pointer-events-none" : ""}`}
                       >
                         {/* User */}
-
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                            <div className="w-9 h-9 rounded-full bg-[#115a88] flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
                               {(
                                 user.name?.charAt(0) ||
                                 user.email?.charAt(0) ||
                                 "U"
                               ).toUpperCase()}
                             </div>
-
                             <div className="min-w-0">
                               <p className="text-sm font-semibold text-gray-800 truncate">
                                 {user.name || "Unknown"}
                               </p>
-
                               <p className="text-xs text-gray-400 flex items-center gap-1 truncate max-w-[180px]">
                                 <Mail className="w-3 h-3 flex-shrink-0" />
-
                                 {sub.email || user.email}
                               </p>
                             </div>
@@ -318,23 +328,19 @@ const AllPaymentsPage = () => {
                         </td>
 
                         {/* Plan */}
-
                         <td className="px-5 py-4">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-600 border border-amber-200">
                             <DollarSign className="w-3 h-3" />
-
                             {sub.plan || "Premium"}
                           </span>
                         </td>
 
                         {/* Status */}
-
                         <td className="px-5 py-4">
                           {getStatusBadge(sub.status)}
                         </td>
 
                         {/* Amount */}
-
                         <td className="px-5 py-4">
                           <span className="text-sm font-semibold text-gray-700">
                             ${sub.amount || "5.00"}
@@ -342,11 +348,9 @@ const AllPaymentsPage = () => {
                         </td>
 
                         {/* Subscribed At */}
-
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-1.5">
                             <Calendar className="w-3 h-3 text-gray-300" />
-
                             <span className="text-xs text-gray-500">
                               {formatDate(sub.subscribedAt)}
                             </span>
@@ -354,7 +358,6 @@ const AllPaymentsPage = () => {
                         </td>
 
                         {/* Stripe ID */}
-
                         <td className="px-5 py-4">
                           <span className="text-xs text-gray-400 font-mono">
                             {sub.stripeSessionId ? (
@@ -368,7 +371,6 @@ const AllPaymentsPage = () => {
                         </td>
 
                         {/* Actions */}
-
                         <td className="px-5 py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
                             {sub.status !== "cancelled" &&
@@ -381,12 +383,9 @@ const AllPaymentsPage = () => {
                                       )
                                     ) {
                                       setProcessingId(sub._id);
-
                                       try {
                                         // Add API call to cancel subscription
-
                                         toast.success("Subscription cancelled");
-
                                         await fetchSubscriptions();
                                       } catch (error) {
                                         toast.error("Failed to cancel");
@@ -410,9 +409,107 @@ const AllPaymentsPage = () => {
             </table>
           </div>
 
-          {/* Footer */}
+          {/* Mobile Cards */}
+          <div className="md:hidden divide-y divide-[#d6e4ed]">
+            {filteredSubscriptions.map((sub, idx) => {
+              const isProcessing = processingId === sub._id;
+              const user = sub.user || {};
 
-          <div className="px-5 py-3 bg-[#f8fafc] border-t border-gray-100 flex items-center justify-between">
+              return (
+                <div
+                  key={sub._id}
+                  className={`p-4 ${idx % 2 === 0 ? "bg-white" : "bg-[#f8fafc]"} ${isProcessing ? "opacity-50 pointer-events-none" : ""}`}
+                >
+                  {/* User Info */}
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-[#115a88] flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                      {(
+                        user.name?.charAt(0) ||
+                        user.email?.charAt(0) ||
+                        "U"
+                      ).toUpperCase()}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-gray-800 truncate">
+                        {user.name || "Unknown"}
+                      </p>
+                      <p className="text-xs text-gray-400 truncate flex items-center gap-1">
+                        <Mail className="w-3 h-3" />
+                        {sub.email || user.email}
+                      </p>
+                    </div>
+                    {getStatusBadge(sub.status)}
+                  </div>
+
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span className="text-xs text-gray-400">Plan</span>
+                      <p className="font-semibold text-gray-700 flex items-center gap-1">
+                        <DollarSign className="w-3 h-3 text-amber-500" />
+                        {sub.plan || "Premium"}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-400">Amount</span>
+                      <p className="font-semibold text-gray-700">
+                        ${sub.amount || "5.00"}
+                      </p>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-xs text-gray-400">Subscribed At</span>
+                      <p className="text-gray-600 flex items-center gap-1">
+                        <Calendar className="w-3 h-3 text-gray-300" />
+                        {formatDate(sub.subscribedAt)}
+                      </p>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-xs text-gray-400">Stripe ID</span>
+                      <p className="text-xs text-gray-400 font-mono truncate">
+                        {sub.stripeSessionId ? (
+                          sub.stripeSessionId.slice(0, 16) + "..."
+                        ) : (
+                          "N/A"
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-[#d6e4ed]">
+                    {sub.status !== "cancelled" &&
+                      sub.status !== "expired" && (
+                        <button
+                          onClick={async () => {
+                            if (
+                              window.confirm(
+                                `Cancel subscription for ${sub.email}?`,
+                              )
+                            ) {
+                              setProcessingId(sub._id);
+                              try {
+                                toast.success("Subscription cancelled");
+                                await fetchSubscriptions();
+                              } catch (error) {
+                                toast.error("Failed to cancel");
+                              } finally {
+                                setProcessingId(null);
+                              }
+                            }
+                          }}
+                          className="px-4 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Footer */}
+          <div className="px-4 sm:px-5 py-3 bg-[#f8fafc] border-t border-[#d6e4ed] flex items-center justify-between">
             <p className="text-xs text-gray-400">
               Showing{" "}
               <span className="font-semibold text-gray-600">
@@ -420,7 +517,6 @@ const AllPaymentsPage = () => {
               </span>{" "}
               subscription{filteredSubscriptions.length !== 1 ? "s" : ""}
             </p>
-
             <p className="text-xs text-gray-400">
               Last updated: {new Date().toLocaleTimeString()}
             </p>

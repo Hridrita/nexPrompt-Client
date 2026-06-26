@@ -1,5 +1,61 @@
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
+export const getPrompts = async (filters = {}) => {
+  const {
+    search = "",
+    category = "",
+    aiTool = "",
+    difficulty = "",
+    sort = "latest",
+    page = 1,
+    limit = 12,
+  } = filters;
+
+  const params = new URLSearchParams();
+  if (search) params.set("search", search);
+  if (category) params.set("category", category);
+  if (aiTool) params.set("aiTool", aiTool);
+  if (difficulty) params.set("difficulty", difficulty);
+  if (sort) params.set("sort", sort);
+  params.set("page", page);
+  params.set("limit", limit);
+
+  try {
+    const res = await fetch(`${baseUrl}/api/prompts?${params.toString()}`, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      return {
+        prompts: [],
+        pagination: {
+          currentPage: 1,
+          totalPages: 1,
+          totalItems: 0,
+          itemsPerPage: limit,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      };
+    }
+
+    return res.json();
+  } catch (error) {
+    console.error("Fetch prompts error:", error);
+    return {
+      prompts: [],
+      pagination: {
+        currentPage: 1,
+        totalPages: 1,
+        totalItems: 0,
+        itemsPerPage: limit,
+        hasNextPage: false,
+        hasPrevPage: false,
+      },
+    };
+  }
+};
+
 export const getPromptsFromCreators = async() =>{
     const res = await fetch(`${baseUrl}/api/prompts`, {
         cache: 'no-store'

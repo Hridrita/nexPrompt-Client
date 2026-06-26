@@ -18,8 +18,7 @@ import {
   Eye,
   XCircle,
   MessageSquare,
-  Shield,
-  BarChart3,
+  MessageSquareWarning,
 } from "lucide-react";
 import {
   getAllReports,
@@ -63,7 +62,7 @@ const ReportedPromptsPage = () => {
   const [filter, setFilter] = useState("all");
   const [warningModal, setWarningModal] = useState(null);
   const [warningMessage, setWarningMessage] = useState("");
-  const [removeModal, setRemoveModal] = useState(null); // ✅ New state for remove confirmation
+  const [removeModal, setRemoveModal] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -93,7 +92,6 @@ const ReportedPromptsPage = () => {
     toast.success("Reports refreshed!");
   };
 
-  // ✅ Remove Prompt - Custom Modal ব্যবহার করব, confirm() নয়
   const handleRemovePrompt = async () => {
     if (!removeModal) return;
 
@@ -101,7 +99,7 @@ const ReportedPromptsPage = () => {
     setProcessingId(promptId);
     try {
       const result = await removePromptAndReports(promptId);
-      toast.success(result.message || `✅ "${promptTitle}" removed successfully`);
+      toast.success(result.message || `"${promptTitle}" removed successfully`);
       setRemoveModal(null);
       await fetchData();
     } catch (error) {
@@ -121,7 +119,7 @@ const ReportedPromptsPage = () => {
     setProcessingId(promptId);
     try {
       const result = await warnCreator(promptId, warningMessage);
-      toast.success(result.message || "⚠️ Warning sent to creator");
+      toast.success(result.message || "Warning sent to creator");
       setWarningModal(null);
       setWarningMessage("");
       await fetchData();
@@ -137,7 +135,7 @@ const ReportedPromptsPage = () => {
     setProcessingId(reportId);
     try {
       const result = await dismissReport(reportId);
-      toast.success(result.message || "✅ Report dismissed");
+      toast.success(result.message || "Report dismissed");
       await fetchData();
     } catch (error) {
       console.error("Error:", error);
@@ -186,7 +184,7 @@ const ReportedPromptsPage = () => {
       className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
         filter === value
           ? "bg-[#115a88] text-white"
-          : "bg-white text-gray-600 border border-gray-200 hover:border-[#115a88]"
+          : "bg-white text-gray-600 border border-[#C7DFEA] hover:border-[#115a88]"
       }`}
     >
       {label}
@@ -204,12 +202,13 @@ const ReportedPromptsPage = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+    <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-3">
 
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#115a88]">Reported Prompts</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#115a88]">Reported Prompts</h1>
+          <p className="text-sm text-gray-400 mt-0.5 hidden sm:block">Manage reported prompts and take action</p>
         </div>
         <button
           onClick={handleRefresh}
@@ -285,22 +284,24 @@ const ReportedPromptsPage = () => {
 
       {/* Reports Table */}
       {filteredReports.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
+        <div className="text-center py-20 bg-white rounded-2xl border border-[#C7DFEA] shadow-sm">
           <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
             <Flag className="w-6 h-6 text-gray-300" />
           </div>
           <p className="text-gray-400 text-sm">No reports found</p>
         </div>
       ) : (
-        <div className="rounded-2xl border border-gray-200 shadow-sm overflow-hidden bg-white">
-          <div className="overflow-x-auto">
+        <div className="rounded-2xl border border-[#C7DFEA] shadow-sm overflow-hidden bg-[#f3f7fb]">
+          
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="min-w-full">
               <thead>
-                <tr className="border-b border-gray-100 bg-[#f8fafc]">
+                <tr className="border-b border-[#d6e4ed] bg-[#e6eef5]">
                   {["Prompt", "Reported By", "Reason", "Status", "Created", "Actions"].map((h) => (
                     <th
                       key={h}
-                      className={`px-5 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider ${
+                      className={`px-5 py-3.5 text-xs font-semibold text-[#115a88] uppercase tracking-wider ${
                         h === "Actions" ? "text-right" : "text-left"
                       }`}
                     >
@@ -324,8 +325,8 @@ const ReportedPromptsPage = () => {
                         exit={{ opacity: 0, x: -20, scale: 0.9 }}
                         transition={{ duration: 0.2, delay: idx * 0.02 }}
                         layout
-                        className={`border-b border-gray-50 hover:bg-[#f8fafd] transition-colors ${
-                          idx % 2 === 0 ? "bg-white" : "bg-[#fafbfc]"
+                        className={`border-b border-[#d6e4ed] hover:bg-[#eef4f8] transition-colors ${
+                          idx % 2 === 0 ? "bg-white" : "bg-[#f8fafc]"
                         } ${isProcessing ? "opacity-50 pointer-events-none" : ""}`}
                       >
                         {/* Prompt */}
@@ -335,7 +336,7 @@ const ReportedPromptsPage = () => {
                               <img
                                 src={prompt.thumbnail}
                                 alt={prompt.title}
-                                className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                                className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-[#C7DFEA]"
                               />
                             )}
                             <div>
@@ -400,7 +401,7 @@ const ReportedPromptsPage = () => {
                         {/* Actions */}
                         <td className="px-5 py-4 text-right">
                           {report.status !== "dismissed" ? (
-                            <div className="flex items-center justify-end gap-2">
+                            <div className="flex items-center justify-end gap-2 flex-wrap">
                               {/* View Prompt */}
                               {prompt?._id && (
                                 <Link
@@ -413,7 +414,7 @@ const ReportedPromptsPage = () => {
                                 </Link>
                               )}
 
-                              {/* Remove Prompt - Modal খুলবে */}
+                              {/* Remove Prompt */}
                               <button
                                 onClick={() => {
                                   setRemoveModal({
@@ -466,8 +467,126 @@ const ReportedPromptsPage = () => {
             </table>
           </div>
 
+          {/* Mobile Cards */}
+          <div className="md:hidden divide-y divide-[#d6e4ed]">
+            {filteredReports.map((report, idx) => {
+              const isProcessing = processingId === report._id || processingId === report.promptId;
+              const prompt = report.prompt || {};
+              const creator = report.creator || {};
+
+              return (
+                <div
+                  key={report._id}
+                  className={`p-4 ${idx % 2 === 0 ? "bg-white" : "bg-[#f8fafc]"} ${isProcessing ? "opacity-50 pointer-events-none" : ""}`}
+                >
+                  {/* Prompt Info */}
+                  <div className="flex items-start gap-3 mb-3">
+                    {prompt?.thumbnail && (
+                      <img
+                        src={prompt.thumbnail}
+                        alt={prompt.title}
+                        className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-[#C7DFEA]"
+                      />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-gray-800 truncate">
+                        {prompt?.title || "Unknown Prompt"}
+                      </p>
+                      <p className="text-xs text-gray-400 truncate">
+                        {prompt?.description || "No description"}
+                      </p>
+                      {creator && (
+                        <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                          <User className="w-3 h-3" />
+                          {creator.name || creator.email || "Unknown Creator"}
+                        </p>
+                      )}
+                    </div>
+                    {getStatusBadge(report.status)}
+                  </div>
+
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-2 gap-3 text-sm border-t border-[#d6e4ed] pt-3">
+                    <div className="col-span-2">
+                      <span className="text-xs text-gray-400">Reported By</span>
+                      <p className="text-gray-700 font-medium">{report.email || "Anonymous"}</p>
+                      {report.description && (
+                        <p className="text-xs text-gray-400 mt-0.5">"{report.description}"</p>
+                      )}
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-xs text-gray-400">Reason</span>
+                      <div className="mt-1">{getReasonBadge(report.reason)}</div>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-xs text-gray-400">Created</span>
+                      <p className="text-gray-600 flex items-center gap-1">
+                        <Calendar className="w-3 h-3 text-gray-300" />
+                        {new Date(report.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  {report.status !== "dismissed" && (
+                    <div className="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-[#d6e4ed] flex-wrap">
+                      {prompt?._id && (
+                        <Link
+                          href={`/all-prompt/${prompt._id}`}
+                          rel="noopener noreferrer"
+                          className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                        >
+                          <Eye className="w-3.5 h-3.5 inline mr-1" />
+                          View
+                        </Link>
+                      )}
+
+                      <button
+                        onClick={() => {
+                          setRemoveModal({
+                            promptId: report.promptId,
+                            promptTitle: prompt?.title || "Unknown Prompt",
+                          });
+                        }}
+                        disabled={isProcessing}
+                        className="px-3 py-1.5 text-xs font-medium text-red-500 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 inline mr-1" />
+                        Remove
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setWarningModal({
+                            promptId: report.promptId,
+                            promptTitle: prompt?.title || "Unknown",
+                            creatorName: creator?.name || "Creator",
+                          });
+                        }}
+                        disabled={isProcessing}
+                        className="px-3 py-1.5 text-xs font-medium text-orange-500 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors disabled:opacity-50"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5 inline mr-1" />
+                        Warn
+                      </button>
+
+                      <button
+                        onClick={() => handleDismissReport(report._id)}
+                        disabled={isProcessing}
+                        className="px-3 py-1.5 text-xs font-medium text-green-500 bg-green-50 rounded-lg hover:bg-green-100 transition-colors disabled:opacity-50"
+                      >
+                        <CheckCircle className="w-3.5 h-3.5 inline mr-1" />
+                        Dismiss
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
           {/* Footer */}
-          <div className="px-5 py-3 bg-[#f8fafc] border-t border-gray-100 flex items-center justify-between">
+          <div className="px-4 sm:px-5 py-3 bg-[#f8fafc] border-t border-[#d6e4ed] flex items-center justify-between">
             <p className="text-xs text-gray-400">
               Showing <span className="font-semibold text-gray-600">{filteredReports.length}</span> report{filteredReports.length !== 1 ? "s" : ""}
             </p>
@@ -478,7 +597,7 @@ const ReportedPromptsPage = () => {
         </div>
       )}
 
-      {/* ✅ Remove Confirmation Modal - Toast Style */}
+      {/* Remove Confirmation Modal */}
       <AnimatePresence>
         {removeModal && (
           <motion.div
@@ -505,7 +624,7 @@ const ReportedPromptsPage = () => {
                     Are you sure you want to remove "<strong>{removeModal.promptTitle}</strong>"?
                   </p>
                   <p className="text-xs text-red-500 mt-2 bg-red-50 px-3 py-2 rounded-lg border border-red-100">
-                    ⚠️ This will permanently delete the prompt and all its reports. This action cannot be undone.
+                    <span className="flex items-center gap-2"><MessageSquareWarning /> This will permanently delete the prompt and all its reports. This action cannot be undone.</span>
                   </p>
                 </div>
               </div>

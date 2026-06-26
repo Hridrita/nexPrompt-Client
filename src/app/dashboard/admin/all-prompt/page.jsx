@@ -54,7 +54,7 @@ const AdminAllPromptPage = () => {
       }
       
       const data = await res.json();
-      toast.success(data.message || "Prompt approved successfully!");
+      toast.success(data.message || "✅ Prompt approved successfully!");
       updatePromptStatus(promptId, "approved");
       
       if (filter !== "all" && filter !== "approved") {
@@ -92,7 +92,7 @@ const AdminAllPromptPage = () => {
       }
       
       const data = await res.json();
-      toast.success(data.message || "Prompt rejected successfully");
+      toast.success(data.message || "❌ Prompt rejected successfully");
       updatePromptStatus(promptId, "rejected", rejectionReason);
       
       if (filter !== "all" && filter !== "rejected") {
@@ -127,7 +127,7 @@ const AdminAllPromptPage = () => {
         throw new Error(error.message || "Delete failed");
       }
       
-      toast.success(`"${promptTitle}" deleted successfully!`);
+      toast.success(`🗑️ "${promptTitle}" deleted successfully!`);
       setPrompts(prev => prev.filter(p => p._id !== promptId));
       setDeleteModal(null);
     } catch (error) {
@@ -203,7 +203,7 @@ const AdminAllPromptPage = () => {
         icon: <XCircle className="w-3 h-3" />,
       },
     };
-    const { cls, icon } = config[status];
+    const { cls, icon } = config[status] || config.pending;
     return (
       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${cls}`}>
         {icon}
@@ -226,56 +226,69 @@ const AdminAllPromptPage = () => {
     rejected: prompts.filter(p => p.status === "rejected").length,
   };
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#115a88]" />
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+    <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-3">
       
       {/* Header */}
-      {/* <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#115a88]">All Prompts</h1>
-        <p className="text-sm text-gray-400 mt-0.5">Review and manage submitted prompts</p>
-      </div> */}
-
-      {/* Filter Tabs */}
-      <div className="flex gap-1 p-1 bg-[#115a88] rounded-xl w-fit mb-6">
-        {FILTERS.map(({ label, value }) => (
-          <button
-            key={value}
-            onClick={() => setFilter(value)}
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5 ${
-              filter === value
-                ? "bg-white text-[#115a88] shadow-sm"
-                : "text-white hover:text-gray-700"
-            }`}
-          >
-            {label}
-            <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
-              filter === value ? "bg-[#e6f4fb] text-[#115a88]" : "bg-gray-200 text-gray-500"
-            }`}>
-              {COUNTS[value]}
-            </span>
-          </button>
-        ))}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#115a88]">All Prompts</h1>
+          <p className="text-sm text-gray-400 mt-0.5 hidden sm:block">Review and manage submitted prompts</p>
+        </div>
+        <div className="text-sm text-gray-400">
+          {prompts.length} total
+        </div>
       </div>
 
-      {/* Table */}
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#115a88]" />
+      {/* Filter Tabs - Scrollable on mobile */}
+      <div className="overflow-x-auto pb-2 -mx-3 px-3 sm:mx-0 sm:px-0">
+        <div className="flex gap-1 p-1 bg-[#115a88] rounded-xl w-fit min-w-max">
+          {FILTERS.map(({ label, value }) => (
+            <button
+              key={value}
+              onClick={() => setFilter(value)}
+              className={`px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                filter === value
+                  ? "bg-white text-[#115a88] shadow-sm"
+                  : "text-white/80 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              {label}
+              <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+                filter === value ? "bg-[#e6f4fb] text-[#115a88]" : "bg-white/20 text-white/80"
+              }`}>
+                {COUNTS[value]}
+              </span>
+            </button>
+          ))}
         </div>
-      ) : prompts.length === 0 ? (
+      </div>
+
+      {/* Table - Desktop & Mobile Responsive */}
+      {prompts.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
           <p className="text-gray-400 text-sm">No prompts found for this filter</p>
         </div>
       ) : (
-        <div className="rounded-2xl border border-gray-200 shadow-sm overflow-hidden bg-white">
-          <div className="overflow-x-auto">
+        <div className="rounded-2xl border border-[#C7DFEA] shadow-sm overflow-hidden bg-[#f3f7fb]">
+          
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="min-w-full">
               <thead>
-                <tr className="border-b border-gray-100 bg-[#f8fafc]">
+                <tr className="border-b border-[#d6e4ed] bg-[#e6eef5]">
                   {["Prompt", "Creator", "Status", "Featured", "Copies", "Submitted", "Actions"].map((h) => (
                     <th
                       key={h}
-                      className={`px-5 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider ${
+                      className={`px-5 py-3.5 text-xs font-semibold text-[#115a88] uppercase tracking-wider ${
                         h === "Actions" ? "text-right" : "text-left"
                       }`}
                     >
@@ -297,18 +310,18 @@ const AdminAllPromptPage = () => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, x: -20 }}
                         transition={{ duration: 0.18, delay: idx * 0.02 }}
-                        className={`group border-b border-gray-50 hover:bg-[#f8fafd] transition-colors ${
-                          idx % 2 === 0 ? "bg-white" : "bg-[#fafbfc]"
-                        }`}
+                        className={`group border-b border-[#d6e4ed] hover:bg-[#eef4f8] transition-colors ${
+                          idx % 2 === 0 ? "bg-white" : "bg-[#f8fafc]"
+                        } ${isProcessing ? "opacity-50 pointer-events-none" : ""}`}
                       >
                         {/* Prompt Info */}
-                        <td className="px-5 py-4 max-w-[260px]">
+                        <td className="px-5 py-4 max-w-[240px]">
                           <div className="flex items-center gap-3">
                             {prompt.thumbnail ? (
                               <img
                                 src={prompt.thumbnail}
                                 alt={prompt.title}
-                                className="h-9 w-9 rounded-lg object-cover flex-shrink-0 border border-gray-100"
+                                className="h-9 w-9 rounded-lg object-cover flex-shrink-0 border border-[#C7DFEA]"
                               />
                             ) : (
                               <div className="h-9 w-9 rounded-lg bg-[#e6f4fb] flex-shrink-0 flex items-center justify-center text-[#115a88] text-xs font-bold">
@@ -337,7 +350,7 @@ const AdminAllPromptPage = () => {
                           <p className="text-sm font-medium text-gray-700">
                             {prompt.creator?.name || "Unknown"}
                           </p>
-                          <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[140px]">
+                          <p className="text-xs text-gray-400 truncate max-w-[140px]">
                             {prompt.creator?.email}
                           </p>
                           <span className={`mt-1 inline-block text-xs px-2 py-0.5 rounded-full font-medium ${
@@ -393,7 +406,7 @@ const AdminAllPromptPage = () => {
 
                         {/* Actions */}
                         <td className="px-5 py-4">
-                          <div className="flex items-center justify-end gap-1.5">
+                          <div className="flex items-center justify-end gap-1.5 flex-wrap">
                             <Link href={`/all-prompt/${prompt._id}`}>
                               <button
                                 className="w-8 h-8 flex items-center justify-center text-[#115a88] bg-[#e6f4fb] rounded-lg hover:bg-[#d0e9f5] transition-colors"
@@ -452,8 +465,145 @@ const AdminAllPromptPage = () => {
             </table>
           </div>
 
+          {/* Mobile Cards */}
+          <div className="md:hidden divide-y divide-[#d6e4ed]">
+            {prompts.map((prompt, idx) => {
+              const isProcessing = processingId === prompt._id;
+              const isFeatured = prompt.featured || false;
+
+              return (
+                <div
+                  key={prompt._id}
+                  className={`p-4 ${idx % 2 === 0 ? "bg-white" : "bg-[#f8fafc]"} ${isProcessing ? "opacity-50 pointer-events-none" : ""}`}
+                >
+                  {/* Header: Title + Status */}
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {prompt.thumbnail ? (
+                        <img
+                          src={prompt.thumbnail}
+                          alt={prompt.title}
+                          className="h-10 w-10 rounded-lg object-cover flex-shrink-0 border border-[#C7DFEA]"
+                        />
+                      ) : (
+                        <div className="h-10 w-10 rounded-lg bg-[#e6f4fb] flex-shrink-0 flex items-center justify-center text-[#115a88] text-sm font-bold">
+                          {prompt.title?.[0]?.toUpperCase()}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-gray-800 truncate">
+                          {prompt.title}
+                        </p>
+                        <p className="text-xs text-gray-400 truncate">
+                          {prompt.description}
+                        </p>
+                      </div>
+                    </div>
+                    {getStatusBadge(prompt.status)}
+                  </div>
+
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-2 gap-2 mt-3 text-sm">
+                    <div>
+                      <span className="text-xs text-gray-400">Creator</span>
+                      <p className="text-gray-700 font-medium truncate">{prompt.creator?.name || "Unknown"}</p>
+                      <p className="text-xs text-gray-400 truncate">{prompt.creator?.email}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-400">Copies</span>
+                      <p className="text-gray-700 font-medium">{prompt.copyCount || 0}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-400">Featured</span>
+                      <button
+                        onClick={() => handleFeature(prompt._id, isFeatured)}
+                        disabled={isProcessing || prompt.status !== "approved"}
+                        className={`mt-1 flex items-center gap-1 text-sm font-medium ${
+                          isFeatured ? "text-yellow-500" : "text-gray-400"
+                        } disabled:opacity-40`}
+                      >
+                        {isFeatured ? <Star className="w-4 h-4 fill-yellow-400" /> : <StarOff className="w-4 h-4" />}
+                        {isFeatured ? "Featured" : "Not featured"}
+                      </button>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-400">Submitted</span>
+                      <p className="text-gray-700">
+                        {new Date(prompt.createdAt).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Rejection Reason */}
+                  {prompt.rejectionReason && prompt.status === "rejected" && (
+                    <div className="mt-2 bg-red-50 border border-red-100 rounded-lg p-2">
+                      <p className="text-xs text-red-600 flex items-start gap-1">
+                        <MessageSquare className="w-3 h-3 flex-shrink-0 mt-0.5" />
+                        <span>{prompt.rejectionReason}</span>
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-[#d6e4ed] flex-wrap">
+                    <Link href={`/all-prompt/${prompt._id}`}>
+                      <button className="px-3 py-1.5 text-xs font-medium text-[#115a88] bg-[#e6f4fb] rounded-lg hover:bg-[#d0e9f5] transition-colors flex items-center gap-1">
+                        <Eye className="w-3.5 h-3.5" />
+                        View
+                      </button>
+                    </Link>
+
+                    <button
+                      onClick={() => setDeleteModal({ 
+                        promptId: prompt._id, 
+                        promptTitle: prompt.title 
+                      })}
+                      disabled={isProcessing}
+                      className="px-3 py-1.5 text-xs font-medium text-red-500 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-40 flex items-center gap-1"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Delete
+                    </button>
+
+                    {prompt.status === "pending" && (
+                      <>
+                        <button
+                          onClick={() => handleApprove(prompt._id)}
+                          disabled={isProcessing}
+                          className="px-3 py-1.5 text-xs font-medium text-white bg-emerald-500 rounded-lg hover:bg-emerald-600 transition-colors disabled:opacity-40 flex items-center gap-1"
+                        >
+                          {isProcessing && processingId === prompt._id ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <CheckCircle className="w-3 h-3" />
+                          )}
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => setRejectModal({ 
+                            promptId: prompt._id, 
+                            promptTitle: prompt.title 
+                          })}
+                          disabled={isProcessing}
+                          className="px-3 py-1.5 text-xs font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-40 flex items-center gap-1"
+                        >
+                          <XCircle className="w-3 h-3" />
+                          Reject
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
           {/* Footer row count */}
-          <div className="px-5 py-3 bg-[#f8fafc] border-t border-gray-100 flex items-center justify-between">
+          <div className="px-4 sm:px-5 py-3 bg-[#f8fafc] border-t border-[#d6e4ed] flex items-center justify-between">
             <p className="text-xs text-gray-400">
               Showing <span className="font-semibold text-gray-600">{prompts.length}</span> prompt{prompts.length !== 1 ? "s" : ""}
             </p>

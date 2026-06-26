@@ -55,7 +55,6 @@ export function DashboardSidebar({ isOpen, setIsOpen }) {
 
   const userNavItems = [
     { icon: House, label: "Home", href: "/" },
-    { icon: Dice4, label: "Dashboard", href: "/dashboard/user" },
     { icon: FilePlus, label: "Add Prompt", href: "/dashboard/user/add-prompt" },
     { icon: FileText, label: "My Prompts", href: "/dashboard/user/my-prompts" },
     { icon: Bookmark, label: "Saved Prompts", href: "/dashboard/user/saved-prompts" },

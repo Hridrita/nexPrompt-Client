@@ -133,12 +133,10 @@ export default function AddPromptForm() {
       }
 
       if (res.insertedId) {
-        // toast.success("✅ Prompt submitted successfully! Waiting for admin approval.");
         reset();
         setPreview(null);
         await fetchPromptCount(user.id);
         
-        // Show pending status notification
         setTimeout(() => {
           toast.custom((t) => (
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 max-w-md">
@@ -161,7 +159,7 @@ export default function AddPromptForm() {
     }
   };
 
-  const inputClass = "w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0a9fd4] focus:border-transparent transition-all";
+  const inputClass = "w-full px-4 py-2.5 rounded-xl border border-[#C7DFEA] bg-white text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0a9fd4] focus:border-[#0a9fd4] transition-all";
   const labelClass = "text-sm font-medium text-[#115a88] mb-1.5 block";
   const errorClass = "text-xs text-red-500 mt-1";
 
@@ -170,7 +168,7 @@ export default function AddPromptForm() {
 
   if (isLoadingCount) {
     return (
-      <div className="max-w-3xl mx-auto bg-[#f3f7fb] rounded-2xl border border-gray-100 shadow-sm p-8">
+      <div className="max-w-3xl mx-auto bg-[#f3f7fb] rounded-2xl border border-[#C7DFEA] shadow-sm p-8">
         <div className="flex justify-center items-center h-64">
           <Loader2 className="w-8 h-8 text-[#0a9fd4] animate-spin" />
         </div>
@@ -179,13 +177,13 @@ export default function AddPromptForm() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto px-3 sm:px-0">
       {/* Limit Reached Screen */}
       {limitReached ? (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm"
+          className="text-center py-16 bg-white rounded-2xl border border-[#C7DFEA] shadow-sm"
         >
           <div className="max-w-md mx-auto">
             <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -205,7 +203,7 @@ export default function AddPromptForm() {
               </a>
               <a 
                 href="/my-prompts" 
-                className="border border-gray-200 text-gray-700 px-8 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all"
+                className="border border-[#C7DFEA] text-gray-700 px-8 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all"
               >
                 View My Prompts
               </a>
@@ -219,10 +217,13 @@ export default function AddPromptForm() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="bg-[#f3f7fb] rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 space-y-6"
+          className="bg-[#f3f7fb] rounded-2xl border border-[#C7DFEA] shadow-sm p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6"
         >
           <div>
-            <h2 className="text-2xl font-semibold text-[#115a88]"><span className="flex items-center gap-1"><LayersPlus />Create New Prompt</span></h2>
+            <h2 className="text-xl sm:text-2xl font-semibold text-[#115a88] flex items-center gap-2">
+              <LayersPlus className="w-5 h-5 sm:w-6 sm:h-6" />
+              Create New Prompt
+            </h2>
             <p className="text-sm text-gray-500 mt-1">Fill in details to publish your prompt</p>
           </div>
 
@@ -231,7 +232,7 @@ export default function AddPromptForm() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.22 }}
-            className="flex items-center gap-3 bg-blue-50/50 border border-blue-100 rounded-xl px-4 py-3"
+            className="flex flex-wrap items-center gap-3 bg-blue-50/50 border border-[#C7DFEA] rounded-xl px-4 py-3"
           >
             <div className="flex items-center gap-2">
               <span className="text-xs font-medium text-gray-500">Status:</span>
@@ -239,7 +240,7 @@ export default function AddPromptForm() {
                 Pending Approval
               </span>
             </div>
-            <div className="w-px h-4 bg-gray-200" />
+            <div className="hidden sm:block w-px h-4 bg-gray-200" />
             <div className="flex items-center gap-2">
               <span className="text-xs font-medium text-gray-500">Copy Count:</span>
               <span className="text-xs font-semibold text-gray-700 bg-white px-2.5 py-1 rounded-full border border-gray-200">
@@ -253,13 +254,13 @@ export default function AddPromptForm() {
             <motion.div 
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex justify-between items-center bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
+              className="flex flex-wrap justify-between items-center bg-gray-50 border border-[#C7DFEA] rounded-xl px-4 py-3"
             >
               <div className="flex items-center gap-3">
                 <p className="text-sm text-gray-600 font-medium">
                   Free Plan: <span className="font-bold text-[#115a88]">{promptCount}</span> / 3 prompts used
                 </p>
-                <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="w-24 sm:w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-gradient-to-r from-[#066a9b] to-[#0a9fd4] rounded-full transition-all duration-500"
                     style={{ width: `${Math.min((promptCount / 3) * 100, 100)}%` }}
@@ -342,7 +343,7 @@ export default function AddPromptForm() {
               name="difficulty"
               control={control}
               render={({ field }) => (
-                <div className="flex gap-3 flex-wrap">
+                <div className="flex flex-wrap gap-3">
                   {["Beginner", "Intermediate", "Pro"].map((level) => (
                     <button
                       type="button"
@@ -351,7 +352,7 @@ export default function AddPromptForm() {
                       className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all ${
                         field.value === level
                           ? "bg-[#066a9b] text-white border-[#066a9b] shadow-sm"
-                          : "bg-white text-gray-600 border-gray-200 hover:border-[#0a9fd4]"
+                          : "bg-white text-gray-600 border-[#C7DFEA] hover:border-[#0a9fd4]"
                       }`}
                     >
                       {level}
@@ -369,7 +370,7 @@ export default function AddPromptForm() {
               name="visibility"
               control={control}
               render={({ field }) => (
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3">
                   {["public", "private"].map((v) => (
                     <button
                       type="button"
@@ -378,7 +379,7 @@ export default function AddPromptForm() {
                       className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all ${
                         field.value === v
                           ? "bg-[#066a9b] text-white border-[#066a9b] shadow-sm"
-                          : "bg-white text-gray-600 border-gray-200 hover:border-[#0a9fd4]"
+                          : "bg-white text-gray-600 border-[#C7DFEA] hover:border-[#0a9fd4]"
                       }`}
                     >
                       {v.charAt(0).toUpperCase() + v.slice(1)}
@@ -396,7 +397,7 @@ export default function AddPromptForm() {
             {!preview ? (
               <label
                 htmlFor="thumbnail-upload"
-                className="flex flex-col items-center justify-center gap-2 w-full h-36 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 cursor-pointer hover:border-[#0a9fd4] hover:bg-blue-50/30 transition-all"
+                className="flex flex-col items-center justify-center gap-2 w-full h-32 sm:h-36 rounded-xl border-2 border-dashed border-[#C7DFEA] bg-gray-50 cursor-pointer hover:border-[#0a9fd4] hover:bg-blue-50/30 transition-all"
               >
                 {uploading ? (
                   <Loader2 className="w-6 h-6 text-[#0a9fd4] animate-spin" />
@@ -416,7 +417,7 @@ export default function AddPromptForm() {
                 />
               </label>
             ) : (
-              <div className="relative w-full h-36 rounded-xl overflow-hidden border border-gray-200">
+              <div className="relative w-full h-32 sm:h-36 rounded-xl overflow-hidden border border-[#C7DFEA]">
                 <img src={preview} alt="thumbnail" className="w-full h-full object-cover" />
                 <button
                   type="button"

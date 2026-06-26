@@ -120,9 +120,9 @@ export default function PromptsTable({ prompts: initialPrompts }) {
         >
           <Link
             href="/dashboard/user/add-prompt"
-            className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-zinc-200 bg-zinc-50/50 py-16 px-6 text-center transition-all hover:border-[#0a9fd4]/30 hover:bg-zinc-50 cursor-pointer group"
+            className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#C7DFEA] bg-[#f3f7fb]/50 py-16 px-6 text-center transition-all hover:border-[#0a9fd4]/30 hover:bg-[#f3f7fb] cursor-pointer group"
           >
-            <div className="bg-white p-4 rounded-full shadow-sm border border-zinc-100 mb-4 transition-transform group-hover:scale-105">
+            <div className="bg-white p-4 rounded-full shadow-sm border border-[#C7DFEA] mb-4 transition-transform group-hover:scale-105">
               <svg className="w-8 h-8 text-zinc-400 group-hover:text-[#0a9fd4]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
@@ -136,88 +136,159 @@ export default function PromptsTable({ prompts: initialPrompts }) {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: "easeOut" }}
-          className="overflow-hidden rounded-2xl border border-zinc-200 bg-[#f3f7fb] shadow-sm"
+          className="overflow-hidden rounded-2xl border border-[#C7DFEA] bg-[#f3f7fb] shadow-sm"
         >
-          <table className="min-w-full divide-y divide-zinc-200">
-            <thead className="bg-zinc-50">
-              <tr>
-                {["Prompt","Category","Status","Visibility","Copies","Created","Actions"].map((h, i) => (
-                  <th
-                    key={h}
-                    className={`px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wide ${h === "Actions" ? "text-right" : "text-left"}`}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-100">
-              <AnimatePresence initial={false}>
-                {prompts.map((p, i) => {
-                  const id = p._id?.$oid || p._id;
-                  const createdAt = p.createdAt?.$date || p.createdAt;
-                  const isBusy = busyId === id;
-                  return (
-                    <motion.tr
-                      key={id}
-                      initial={{ opacity: 0, x: -12 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 12, transition: { duration: 0.2 } }}
-                      transition={{ duration: 0.3, delay: i * 0.04 }}
-                      className={`hover:bg-zinc-50/70 transition-colors ${isBusy ? "opacity-50 pointer-events-none" : ""}`}
-                    >
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3 max-w-xs">
-                          <div className="relative h-10 w-10 rounded-lg overflow-hidden bg-zinc-100 shrink-0">
-                            {p.thumbnailImage && (
-                              <Image src={p.thumbnailImage} alt={p.title} fill className="object-cover" />
-                            )}
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="min-w-full divide-y divide-[#d6e4ed]">
+              <thead className="bg-[#e6eef5]">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#115a88] uppercase tracking-wide">Prompt</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#115a88] uppercase tracking-wide">Category</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#115a88] uppercase tracking-wide">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#115a88] uppercase tracking-wide">Visibility</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#115a88] uppercase tracking-wide">Copies</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#115a88] uppercase tracking-wide">Created</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-[#115a88] uppercase tracking-wide">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#d6e4ed] bg-white">
+                <AnimatePresence initial={false}>
+                  {prompts.map((p, i) => {
+                    const id = p._id?.$oid || p._id;
+                    const createdAt = p.createdAt?.$date || p.createdAt;
+                    const isBusy = busyId === id;
+                    return (
+                      <motion.tr
+                        key={id}
+                        initial={{ opacity: 0, x: -12 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 12, transition: { duration: 0.2 } }}
+                        transition={{ duration: 0.3, delay: i * 0.04 }}
+                        className={`${i % 2 === 0 ? "bg-white" : "bg-[#f8fafc]"} hover:bg-[#eef4f8] transition-colors ${isBusy ? "opacity-50 pointer-events-none" : ""}`}
+                      >
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3 max-w-xs">
+                            <div className="relative h-10 w-10 rounded-lg overflow-hidden bg-zinc-100 shrink-0">
+                              {p.thumbnailImage && (
+                                <Image src={p.thumbnailImage} alt={p.title} fill className="object-cover" />
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium text-zinc-900 truncate">{p.title}</p>
+                              <p className="text-xs text-zinc-400 truncate">{p.aiTool}</p>
+                            </div>
                           </div>
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-zinc-900 truncate">{p.title}</p>
-                            <p className="text-xs text-zinc-400 truncate">{p.aiTool}</p>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-zinc-600">{p.category}</td>
+                        <td className="px-4 py-3">
+                          <Badge className={statusStyles[p.status] || statusStyles.pending}>{p.status}</Badge>
+                        </td>
+                        <td className="px-4 py-3">
+                          <Badge className={visibilityStyles[p.visibility] || visibilityStyles.private}>{p.visibility}</Badge>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-zinc-600">{p.copyCount ?? 0}</td>
+                        <td className="px-4 py-3 text-sm text-zinc-500">
+                          {createdAt ? new Date(createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.92 }}
+                              onClick={() => setEditingPrompt(p)}
+                              className="p-2 rounded-lg text-zinc-500 hover:bg-[#e6f4fb] hover:text-[#0a6c9b] transition-colors"
+                              title="Edit"
+                            >
+                              <Pencil width={16} height={16} />
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.92 }}
+                              onClick={() => setDeleteTarget(p)}
+                              className="p-2 rounded-lg text-zinc-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                              title="Delete"
+                            >
+                              <TrashBin width={16} height={16} />
+                            </motion.button>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-zinc-600">{p.category}</td>
-                      <td className="px-4 py-3">
+                        </td>
+                      </motion.tr>
+                    );
+                  })}
+                </AnimatePresence>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Cards */}
+          <div className="md:hidden divide-y divide-[#d6e4ed]">
+            {prompts.map((p, idx) => {
+              const id = p._id?.$oid || p._id;
+              const createdAt = p.createdAt?.$date || p.createdAt;
+              const isBusy = busyId === id;
+              return (
+                <div
+                  key={id}
+                  className={`p-4 ${idx % 2 === 0 ? "bg-white" : "bg-[#f8fafc]"} ${isBusy ? "opacity-50 pointer-events-none" : ""}`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="relative h-12 w-12 rounded-lg overflow-hidden bg-zinc-100 shrink-0">
+                      {p.thumbnailImage && (
+                        <Image src={p.thumbnailImage} alt={p.title} fill className="object-cover" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-zinc-900 truncate">{p.title}</p>
+                      <p className="text-xs text-zinc-400">{p.aiTool}</p>
+                      <div className="flex flex-wrap items-center gap-2 mt-1">
                         <Badge className={statusStyles[p.status] || statusStyles.pending}>{p.status}</Badge>
-                      </td>
-                      <td className="px-4 py-3">
                         <Badge className={visibilityStyles[p.visibility] || visibilityStyles.private}>{p.visibility}</Badge>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-zinc-600">{p.copyCount ?? 0}</td>
-                      <td className="px-4 py-3 text-sm text-zinc-500">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 mt-3 text-sm">
+                    <div>
+                      <span className="text-xs text-zinc-400">Category</span>
+                      <p className="text-zinc-600">{p.category}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-zinc-400">Copies</span>
+                      <p className="text-zinc-600">{p.copyCount ?? 0}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-xs text-zinc-400">Created</span>
+                      <p className="text-zinc-500">
                         {createdAt ? new Date(createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.92 }}
-                            onClick={() => setEditingPrompt(p)}
-                            className="p-2 rounded-lg text-zinc-500 hover:bg-[#e6f4fb] hover:text-[#0a6c9b] transition-colors"
-                            title="Edit"
-                          >
-                            <Pencil width={16} height={16} />
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.92 }}
-                            onClick={() => setDeleteTarget(p)}
-                            className="p-2 rounded-lg text-zinc-500 hover:bg-red-50 hover:text-red-600 transition-colors"
-                            title="Delete"
-                          >
-                            <TrashBin width={16} height={16} />
-                          </motion.button>
-                        </div>
-                      </td>
-                    </motion.tr>
-                  );
-                })}
-              </AnimatePresence>
-            </tbody>
-          </table>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 mt-3 pt-3 border-t border-[#d6e4ed]">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.92 }}
+                      onClick={() => setEditingPrompt(p)}
+                      className="p-2 rounded-lg text-zinc-500 hover:bg-[#e6f4fb] hover:text-[#0a6c9b] transition-colors"
+                      title="Edit"
+                    >
+                      <Pencil width={16} height={16} />
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.92 }}
+                      onClick={() => setDeleteTarget(p)}
+                      className="p-2 rounded-lg text-zinc-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                      title="Delete"
+                    >
+                      <TrashBin width={16} height={16} />
+                    </motion.button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </motion.div>
       )}
 
@@ -282,7 +353,7 @@ export default function PromptsTable({ prompts: initialPrompts }) {
               onClick={(e) => e.stopPropagation()}
               className="w-full max-w-lg rounded-2xl bg-white shadow-xl max-h-[85vh] overflow-y-auto"
             >
-              <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100 bg-gradient-to-r from-[#115a88] to-[#0a9fd4] sticky top-0 rounded-t-2xl">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[#d6e4ed] bg-gradient-to-r from-[#115a88] to-[#0a9fd4] sticky top-0 rounded-t-2xl">
                 <h3 className="text-base font-semibold text-white">Edit prompt</h3>
                 <motion.button
                   whileHover={{ rotate: 90 }}

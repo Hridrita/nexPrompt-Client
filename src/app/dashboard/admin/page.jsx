@@ -1,11 +1,8 @@
-import React from 'react';
+import { redirect } from 'next/navigation';
+
 
 const AdminDashboard = () => {
-    return (
-        <div className='pt-32'>
-            i am admin
-        </div>
-    );
+   redirect("/dashboard/admin/all-prompt");
 };
 
 export default AdminDashboard;

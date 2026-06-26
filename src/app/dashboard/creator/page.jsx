@@ -175,7 +175,7 @@ export default function CreatorDashboard() {
               variants={cardItem}
               whileHover={{ y: -4, boxShadow: "0 12px 24px -10px rgba(17,90,136,0.25)" }}
               transition={{ type: "spring", stiffness: 300, damping: 22 }}
-              className="relative overflow-hidden bg-white rounded-2xl border border-[#C7DFEA] p-5 cursor-default"
+              className="relative overflow-hidden bg-[#eef4f8] rounded-2xl border border-[#C7DFEA] p-5 cursor-default"
             >
               <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-[#C7DFEA] opacity-40" />
 
@@ -216,7 +216,7 @@ export default function CreatorDashboard() {
       >
         <motion.div
           variants={cardItem}
-          className="bg-white rounded-2xl border border-[#C7DFEA] p-4 flex items-center justify-between"
+          className="bg-[#eef4f8] rounded-2xl border border-[#C7DFEA] p-4 flex items-center justify-between"
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
@@ -231,7 +231,7 @@ export default function CreatorDashboard() {
 
         <motion.div
           variants={cardItem}
-          className="bg-white rounded-2xl border border-[#C7DFEA] p-4 flex items-center justify-between"
+          className="bg-[#eef4f8] rounded-2xl border border-[#C7DFEA] p-4 flex items-center justify-between"
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
@@ -246,7 +246,7 @@ export default function CreatorDashboard() {
 
         <motion.div
           variants={cardItem}
-          className="bg-white rounded-2xl border border-[#C7DFEA] p-4 flex items-center justify-between"
+          className="bg-[#eef4f8] rounded-2xl border border-[#C7DFEA] p-4 flex items-center justify-between"
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
@@ -268,7 +268,7 @@ export default function CreatorDashboard() {
         className="grid grid-cols-1 lg:grid-cols-2 gap-5"
       >
         {/* Total Copies — Line chart */}
-        <div className="bg-white rounded-2xl border border-[#C7DFEA] p-5">
+        <div className="bg-[#eef4f8] rounded-2xl border border-[#C7DFEA] p-5">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-base font-semibold text-[#0a3d5c]">

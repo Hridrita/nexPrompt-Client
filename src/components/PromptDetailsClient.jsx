@@ -1,4 +1,3 @@
-// app/all-prompt/[id]/PromptDetailsClient.jsx
 "use client";
 
 import { useEffect, useState } from "react";

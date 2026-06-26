@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Pencil, TrashBin, Xmark, ChevronDown } from "@gravity-ui/icons";
+import { Pencil, TrashBin, Xmark, ChevronDown, Eye } from "@gravity-ui/icons";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -92,7 +92,6 @@ export default function PromptsTable({ prompts }) {
       const updated = await res.json();
       toast.success(`Updated ${editingPrompt.title}`);
       router.refresh();
-      // TODO: parent state update with `updated`
       setEditingPrompt(null);
     } catch (err) {
       toast.error(err.message || "Something went wrong, please try again");
@@ -138,122 +137,229 @@ export default function PromptsTable({ prompts }) {
           </p>
         </Link>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-[#f3f7fb] shadow-sm">
-          <table className="min-w-full divide-y divide-zinc-200">
-            <thead className="bg-zinc-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wide">
-                  Prompt
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wide">
-                  Category
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wide">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wide">
-                  Visibility
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wide">
-                  Copies
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wide">
-                  Created
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-zinc-500 uppercase tracking-wide">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-100">
-              {prompts.map((p) => {
-                const id = p._id?.$oid || p._id;
-                const createdAt = p.createdAt?.$date || p.createdAt;
-                const isBusy = busyId === id;
-                return (
-                  <tr
-                    key={id}
-                    className={`hover:bg-zinc-50/70 transition-colors ${isBusy ? "opacity-50 pointer-events-none" : ""}`}
-                  >
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3 max-w-xs">
-                        <div className="relative h-10 w-10 rounded-lg overflow-hidden bg-zinc-100 shrink-0">
-                          {p.thumbnailImage && (
-                            <Image
-                              src={p.thumbnailImage}
-                              alt={p.title}
-                              fill
-                              className="object-cover"
-                            />
-                          )}
+        <div className="overflow-hidden rounded-2xl border border-[#C7DFEA] bg-[#f3f7fb] shadow-sm">
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="min-w-full divide-y divide-[#d6e4ed]">
+              <thead className="bg-[#e6eef5]">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#115a88] uppercase tracking-wide">
+                    Prompt
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#115a88] uppercase tracking-wide">
+                    Category
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#115a88] uppercase tracking-wide">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#115a88] uppercase tracking-wide">
+                    Visibility
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#115a88] uppercase tracking-wide">
+                    Copies
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#115a88] uppercase tracking-wide">
+                    Created
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-[#115a88] uppercase tracking-wide">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#d6e4ed] bg-white">
+                {prompts.map((p, idx) => {
+                  const id = p._id?.$oid || p._id;
+                  const createdAt = p.createdAt?.$date || p.createdAt;
+                  const isBusy = busyId === id;
+                  return (
+                    <tr
+                      key={id}
+                      className={`${
+                        idx % 2 === 0 ? "bg-white" : "bg-[#f8fafc]"
+                      } hover:bg-[#eef4f8] transition-colors ${
+                        isBusy ? "opacity-50 pointer-events-none" : ""
+                      }`}
+                    >
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3 max-w-xs">
+                          <div className="relative h-10 w-10 rounded-lg overflow-hidden bg-zinc-100 shrink-0">
+                            {p.thumbnailImage && (
+                              <Image
+                                src={p.thumbnailImage}
+                                alt={p.title}
+                                fill
+                                className="object-cover"
+                              />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-zinc-900 truncate">
+                              {p.title}
+                            </p>
+                            <p className="text-xs text-zinc-400 truncate">
+                              {p.aiTool}
+                            </p>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium text-zinc-900 truncate">
-                            {p.title}
-                          </p>
-                          <p className="text-xs text-zinc-400 truncate">
-                            {p.aiTool}
-                          </p>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-zinc-600">
+                        {p.category}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge
+                          className={
+                            statusStyles[p.status] || statusStyles.pending
+                          }
+                        >
+                          {p.status}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge
+                          className={
+                            visibilityStyles[p.visibility] ||
+                            visibilityStyles.private
+                          }
+                        >
+                          {p.visibility}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-zinc-600">
+                        {p.copyCount ?? 0}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-zinc-500">
+                        {createdAt
+                          ? new Date(createdAt).toLocaleDateString("en-GB", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })
+                          : "—"}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => setEditingPrompt(p)}
+                            className="p-2 rounded-lg text-zinc-500 hover:bg-[#e6f4fb] hover:text-[#0a6c9b] transition-colors"
+                            title="Edit"
+                          >
+                            <Pencil width={16} height={16} />
+                          </button>
+                          <button
+                            onClick={() => setDeleteTarget(p)}
+                            className="p-2 rounded-lg text-zinc-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                            title="Delete"
+                          >
+                            <TrashBin width={16} height={16} />
+                          </button>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-zinc-600">
-                      {p.category}
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge
-                        className={
-                          statusStyles[p.status] || statusStyles.pending
-                        }
-                      >
-                        {p.status}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge
-                        className={
-                          visibilityStyles[p.visibility] ||
-                          visibilityStyles.private
-                        }
-                      >
-                        {p.visibility}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-zinc-600">
-                      {p.copyCount ?? 0}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-zinc-500">
-                      {createdAt
-                        ? new Date(createdAt).toLocaleDateString("en-GB", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })
-                        : "—"}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          onClick={() => setEditingPrompt(p)}
-                          className="p-2 rounded-lg text-zinc-500 hover:bg-[#e6f4fb] hover:text-[#0a6c9b] transition-colors"
-                          title="Edit"
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Cards */}
+          <div className="md:hidden divide-y divide-[#d6e4ed]">
+            {prompts.map((p) => {
+              const id = p._id?.$oid || p._id;
+              const createdAt = p.createdAt?.$date || p.createdAt;
+              const isBusy = busyId === id;
+              return (
+                <div
+                  key={id}
+                  className={`p-4 ${
+                    isBusy ? "opacity-50 pointer-events-none" : ""
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="relative h-12 w-12 rounded-lg overflow-hidden bg-zinc-100 shrink-0">
+                      {p.thumbnailImage && (
+                        <Image
+                          src={p.thumbnailImage}
+                          alt={p.title}
+                          fill
+                          className="object-cover"
+                        />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-zinc-900 truncate">
+                        {p.title}
+                      </p>
+                      <p className="text-xs text-zinc-400">{p.aiTool}</p>
+                      <div className="flex flex-wrap items-center gap-2 mt-1">
+                        <Badge
+                          className={
+                            statusStyles[p.status] || statusStyles.pending
+                          }
                         >
-                          <Pencil width={16} height={16} />
-                        </button>
-                        <button
-                          onClick={() => setDeleteTarget(p)}
-                          className="p-2 rounded-lg text-zinc-500 hover:bg-red-50 hover:text-red-600 transition-colors"
-                          title="Delete"
+                          {p.status}
+                        </Badge>
+                        <Badge
+                          className={
+                            visibilityStyles[p.visibility] ||
+                            visibilityStyles.private
+                          }
                         >
-                          <TrashBin width={16} height={16} />
-                        </button>
+                          {p.visibility}
+                        </Badge>
                       </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 mt-3 text-sm">
+                    <div>
+                      <span className="text-xs text-zinc-400">Category</span>
+                      <p className="text-zinc-600">{p.category}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-zinc-400">Copies</span>
+                      <p className="text-zinc-600">{p.copyCount ?? 0}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-xs text-zinc-400">Created</span>
+                      <p className="text-zinc-500">
+                        {createdAt
+                          ? new Date(createdAt).toLocaleDateString("en-GB", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })
+                          : "—"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 mt-3 pt-3 border-t border-[#d6e4ed]">
+                    <button
+                      onClick={() => setEditingPrompt(p)}
+                      className="p-2 rounded-lg text-zinc-500 hover:bg-[#e6f4fb] hover:text-[#0a6c9b] transition-colors"
+                      title="Edit"
+                    >
+                      <Pencil width={16} height={16} />
+                    </button>
+                    <button
+                      onClick={() => setDeleteTarget(p)}
+                      className="p-2 rounded-lg text-zinc-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                      title="Delete"
+                    >
+                      <TrashBin width={16} height={16} />
+                    </button>
+                    <Link
+                      href={`/all-prompt/${id}`}
+                      className="p-2 rounded-lg text-zinc-500 hover:bg-[#e6f4fb] hover:text-[#0a6c9b] transition-colors"
+                      title="View"
+                    >
+                      <Eye width={16} height={16} />
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -384,7 +490,6 @@ function EditPromptForm({ prompt, onCancel, onSubmit }) {
       onSubmit={handleSubmit}
       className="px-6 py-6 space-y-5 bg-gradient-to-b from-[#f3f9fc] to-white"
     >
-      {/* thumbnail preview + title */}
       <div className="flex gap-4 items-start">
         {prompt.thumbnailImage && (
           <div className="relative h-16 w-16 rounded-xl overflow-hidden bg-zinc-100 shrink-0 ring-2 ring-[#0a9fd4]/20">

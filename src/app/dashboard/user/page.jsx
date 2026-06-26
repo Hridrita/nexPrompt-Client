@@ -1,11 +1,7 @@
-import React from 'react';
+import { redirect } from "next/navigation";
 
 const UserDashboard = () => {
-    return (
-        <div className='pt-32'>
-            i am user
-        </div>
-    );
+    redirect("/dashboard/user/my-prompts");
 };
 
 export default UserDashboard;

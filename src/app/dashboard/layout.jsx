@@ -1,5 +1,3 @@
-// app/dashboard/layout.jsx - শুধুমাত্র Admin-এর জন্য Header Hide করুন
-
 "use client";
 
 import { DashboardSidebar } from "@/components/DashboardSidebar";
@@ -31,11 +29,11 @@ const DashboardLayout = ({ children }) => {
   const userRole = user?.role || "user";
   const dashboardPath = `/dashboard/${userRole}`;
   
-  // ✅ Admin চেক করুন
+ 
   const isAdmin = userRole === "admin";
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#C7DFEA] p-4 gap-4">
+    <div className="flex h-screen overflow-hidden bg-white p-4 gap-4">
       <button
         onClick={() => setIsOpen(true)}
         className="lg:hidden fixed top-6 left-4 z-30 bg-[#115a88] text-white p-2 rounded-lg shadow-md"
@@ -52,7 +50,7 @@ const DashboardLayout = ({ children }) => {
       </div>
 
       <div className="flex-1 flex flex-col gap-4 overflow-hidden">
-        {/* ✅ শুধুমাত্র Admin না হলে Header দেখাবে */}
+       
         {!isAdmin && (
           <header className="h-16 bg-[#f3f7fb] rounded-2xl border border-gray-200 flex items-center px-8 shadow-sm lg:ml-0 ml-12">
             {user ? (

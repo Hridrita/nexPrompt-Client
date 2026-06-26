@@ -75,7 +75,7 @@ const ProfilePage = async () => {
       <div className="max-w-4xl mx-auto py-2 space-y-4">
 
         {/* ── Hero Card ── */}
-        <div className="card-a card-lift bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="card-a card-lift bg-[#f3f7fb] rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
           <div className="accent-strip h-1.5 w-full" />
           <div className="p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6">
 
@@ -98,7 +98,7 @@ const ProfilePage = async () => {
             {/* Name / Email */}
             <div className="flex-1 text-center sm:text-left">
               <p className="text-xs font-semibold tracking-widest uppercase text-[#115a88] opacity-50 mb-1">NexPrompt Account</p>
-              <h1 className="text-2xl sm:text-3xl font-bold shimmer-text leading-tight">{user.name}</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#115a88] ">{user.name}</h1>
               <p className="mt-1.5 text-sm text-gray-400 flex items-center gap-1.5 justify-center sm:justify-start">
                 <Mail size={13} className="text-[#115a88] opacity-50" />
                 {user.email}
@@ -128,7 +128,7 @@ const ProfilePage = async () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
           {/* Account Details */}
-          <div className="card-b card-lift bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+          <div className="card-b card-lift bg-[#f3f7fb] rounded-2xl border border-gray-200 shadow-sm p-6">
             <p className="text-xs font-bold text-[#115a88] tracking-widest uppercase opacity-50 mb-5">Account Details</p>
 
             <div className="space-y-5">

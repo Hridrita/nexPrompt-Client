@@ -61,7 +61,7 @@ export default function AddPromptForm() {
 
   const fetchPromptCount = async (userId) => {
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5000';
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
       const res = await fetch(`${baseUrl}/api/prompts/creator/${userId}`, {
         cache: "no-store"
       });

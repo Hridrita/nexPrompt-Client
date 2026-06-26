@@ -216,9 +216,12 @@ export default function SignIn() {
     }
   };
 
-  const handleGoogleSignIn = () => {
-    // TODO: implement google oauth
-    console.log("Google sign in clicked");
+  const handleGoogleSignIn = async() => {
+    
+        await authClient.signIn.social({
+          provider: "google"
+        })
+    
   };
 
   const inputClass = (hasError) =>

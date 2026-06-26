@@ -230,6 +230,8 @@ const PromptDetailsClient = ({ prompt }) => {
     }
   };
 
+  
+
   // Premium lock overlay component
   const PremiumLockOverlay = () => (
     <div className="relative rounded-2xl border border-[#C7DFEA] bg-white overflow-hidden">

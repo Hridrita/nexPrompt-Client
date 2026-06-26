@@ -7,6 +7,7 @@ export default function RedirectHandler({ url }) {
   const router = useRouter();
 
   useEffect(() => {
+    console.log("Redirecting to:", url);
     const timer = setTimeout(() => {
       router.push(url);
     }, 2000);

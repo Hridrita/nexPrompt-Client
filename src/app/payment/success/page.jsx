@@ -10,7 +10,8 @@ export default async function Success({ searchParams }) {
   const { session_id } = await searchParams;
   const params = await searchParams;
 
-  const redirectTo = params.redirect || "/all-prompt";
+  const redirectTo = params.redirect || "/dashboard/user";
+  console.log("Redirect to:", redirectTo);
 
 
 

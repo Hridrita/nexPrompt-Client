@@ -1,16 +1,15 @@
+// app/payment/page.jsx
+
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import { CheckCircle, Crown, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 
-const PremiumPage = () => {
+// ✅ Separate component that uses useSearchParams
+function PaymentContent() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/all-prompt";
-  const handlePayment = () => {
-    // এখানে আপনার Stripe Payment Logic হবে
-    console.log("Redirecting to Stripe checkout...");
-  };
 
   const features = [
     { name: "Access to public prompts", isPro: false },
@@ -21,7 +20,7 @@ const PremiumPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50  py-40 px-4">
+    <div className="min-h-screen bg-slate-50 py-40 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-12">
@@ -85,7 +84,8 @@ const PremiumPage = () => {
             </p>
 
             <form action="/api/checkout_sessions" method="POST">
-             <input type="hidden" name="redirect" value={redirect} />
+              <input type="hidden" name="redirect" value={redirect} />
+               <p className="text-xs text-gray-400 mb-2">Redirecting to: {redirect}</p>
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -105,6 +105,19 @@ const PremiumPage = () => {
         </div>
       </div>
     </div>
+  );
+}
+
+
+const PremiumPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600" />
+      </div>
+    }>
+      <PaymentContent />
+    </Suspense>
   );
 };
 

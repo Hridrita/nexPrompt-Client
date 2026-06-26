@@ -10,8 +10,11 @@ export const serverFetch = async (path) => {
   return text ? JSON.parse(text) : null;
 };
 
-export const serverMutation = async (path, data, method="POST") => {
+export const serverMutation = async (path, data, method = "POST") => {
   try {
+    // console.log(`API Call: ${method} ${baseUrl}${path}`);
+    // console.log(` Payload:`, data);
+
     const res = await fetch(`${baseUrl}${path}`, {
       method,
       headers: {
@@ -20,12 +23,24 @@ export const serverMutation = async (path, data, method="POST") => {
       body: JSON.stringify(data),
     });
 
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || "Something went wrong!");
+    //Response text 
+    const responseText = await res.text();
+    console.log(`📨 Response:`, responseText);
+
+    //JSON parse
+    let jsonData;
+    try {
+      jsonData = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error("JSON Parse Error:", parseError);
+      throw new Error(`Server returned non-JSON response: ${responseText.substring(0, 100)}`);
     }
 
-    return await res.json();
+    if (!res.ok) {
+      throw new Error(jsonData.error || jsonData.message || "Something went wrong!");
+    }
+
+    return jsonData;
   } catch (error) {
     console.error("Mutation Error:", error.message);
     throw error;

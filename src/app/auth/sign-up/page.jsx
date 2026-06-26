@@ -318,8 +318,10 @@ export default function SignUp() {
     }
   };
 
-  const handleGoogleSignUp = () => {
-    console.log("Google sign up clicked");
+  const handleGoogleSignUp = async() => {
+    await authClient.signIn.social({
+      provider: "google"
+    })
   };
 
   const inputClass = (hasError) =>

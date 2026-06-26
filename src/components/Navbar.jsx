@@ -47,10 +47,12 @@ const Navbar = () => {
     });
   };
 
+  // ✅ Fix: dashboardUrl কখনো undefined/null হবে না
   const dashboardLinks = () => {
     if (user?.role === "user") return "/dashboard/user";
     if (user?.role === "creator") return "/dashboard/creator";
     if (user?.role === "admin") return "/dashboard/admin";
+    return "#"; // fallback
   };
 
   const dashboardUrl = dashboardLinks();
@@ -96,6 +98,7 @@ const Navbar = () => {
               </Link>
             </li>
           ))}
+          {/* ✅ শুধু user থাকলেই Dashboard দেখাবে */}
           {user && (
             <li>
               <Link
@@ -125,14 +128,13 @@ const Navbar = () => {
                   className="rounded-full border-2 border-[#066a9b] object-cover"
                 />
 
-                <Link href="/auth/sign-in">
-                  <Button
-                    onClick={handleSignOut}
-                    className="bg-linear-to-r from-[#066a9b] to-[#0a9fd4] text-white rounded-full px-6 font-semibold shadow-md hover:shadow-[#066a9b]/40 hover:scale-105 transition-all duration-200"
-                  >
-                    Sign out
-                  </Button>
-                </Link>
+                {/* ✅ Fix: SignOut Button */}
+                <Button
+                  onClick={handleSignOut}
+                  className="bg-linear-to-r from-[#066a9b] to-[#0a9fd4] text-white rounded-full px-6 font-semibold shadow-md hover:shadow-[#066a9b]/40 hover:scale-105 transition-all duration-200"
+                >
+                  Sign out
+                </Button>
               </div>
             </>
           ) : (
@@ -166,15 +168,14 @@ const Navbar = () => {
             >
               All Prompt
             </Link>
-            {user ? (
+            {/* ✅ শুধু user থাকলেই Dashboard দেখাবে */}
+            {user && (
               <Link
                 href={dashboardUrl}
                 className="block py-2 text-zinc-700 font-medium"
               >
                 Dashboard
               </Link>
-            ) : (
-              ""
             )}
             {isPending ? (
               <div className="flex items-center gap-2">
@@ -193,15 +194,17 @@ const Navbar = () => {
                       className="rounded-full border-2 border-[#066a9b] object-cover"
                     />
                     <span className="font-medium">
-                      {user.name.toUpperCase()}
+                      {user.name?.toUpperCase() || "USER"}
                     </span>
                   </div>
 
-                  <Link href="/auth/sign-in">
-                    <Button className="bg-linear-to-r from-[#066a9b] to-[#0a9fd4] text-white rounded-full px-6 font-semibold shadow-md hover:shadow-[#066a9b]/40 hover:scale-105 transition-all duration-200">
-                      Sign out
-                    </Button>
-                  </Link>
+                  {/* ✅ Fix: SignOut Button - Link সরানো হয়েছে */}
+                  <Button
+                    onClick={handleSignOut}
+                    className="bg-linear-to-r from-[#066a9b] to-[#0a9fd4] text-white rounded-full px-6 font-semibold shadow-md hover:shadow-[#066a9b]/40 hover:scale-105 transition-all duration-200"
+                  >
+                    Sign out
+                  </Button>
                 </div>
               </>
             ) : (

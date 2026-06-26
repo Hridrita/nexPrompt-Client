@@ -19,5 +19,21 @@ export const auth = betterAuth({
           default: 'free_user'
         }
     }
+  },
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+
+      mapProfileToUser: (profile) =>{
+        return {
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+          role: "user",
+          plan: "free_user"
+        }
+      }
+    }
   }
 });

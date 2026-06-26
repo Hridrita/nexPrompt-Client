@@ -19,6 +19,9 @@ const ProfilePage = async () => {
     explorer: 'bg-blue-50 text-blue-700 border-blue-200',
   }[user.role?.toLowerCase()] || 'bg-gray-50 text-gray-500 border-gray-200';
 
+  const currentPath = '/dashboard/user/my-profile';
+  const paymentUrl = `/payment?redirect=${encodeURIComponent(currentPath)}`;
+
   return (
     <>
       <style>{`
@@ -192,7 +195,7 @@ const ProfilePage = async () => {
               </div>
 
               <Link
-                href="/payment"
+                href={paymentUrl}
                 className="inline-flex items-center justify-center gap-2 bg-white text-[#115a88] px-6 py-2.5 rounded-xl font-bold text-sm hover:bg-[#f3f7fb] transition-colors w-full"
               >
                 <Sparkles size={13} /> Upgrade Now <ChevronRight size={13} />

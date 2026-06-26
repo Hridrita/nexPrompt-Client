@@ -11,21 +11,27 @@ export async function POST(req) {
 
     const formData = await req.formData();
     const redirect = formData.get("redirect") || "/all-prompt";
+     console.log("Redirect from form:", redirect);
 
     const user = await getUserSession();
+    const priceId = process.env.STRIPE_PRICE_ID;
 
     // Create Checkout Sessions from body params.
     const session = await stripe.checkout.sessions.create({
         customer_email: user?.email,
       line_items: [
         {
-          // Provide the exact Price ID (for example, price_1234) of the product you want to sell
-          price: 'price_1TlUzgI9sVQb1cS0kGCPqkfN',
+          price: priceId,
           quantity: 1,
         },
       ],
       mode: 'payment',
       success_url: `${origin}/payment/success?session_id={CHECKOUT_SESSION_ID}&redirect=${encodeURIComponent(redirect)}`,
+      cancel_url: `${origin}/payment/cancel?redirect=${encodeURIComponent(redirect)}`,
+      metadata: {
+        redirect: redirect,
+        userId: user?.id || '',
+      },
     });
     return NextResponse.redirect(session.url, 303)
   } catch (err) {

@@ -76,7 +76,7 @@ export const getPromptsByCreators = async(userId) =>{
 export const getPromptById = async(id) =>{
   const token = await getAuthToken();
   console.log('token', token);
-  
+
     const res = await fetch(`${baseUrl}/api/prompts/${id}`,{
         headers: {
             authorization: `Bearer ${token}`
@@ -84,6 +84,6 @@ export const getPromptById = async(id) =>{
     })
     if(!res.ok) return null;
     const data = await res.json();
-    console.log("prompt data:", data);
+    // console.log("prompt data:", data);
     return data;
 }

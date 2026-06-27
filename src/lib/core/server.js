@@ -17,7 +17,7 @@ export const serverFetch = async (path, options = {}) => {
     const headers = {
       "Content-Type": "application/json",
       // ...await authHeader(),
-      // ...options.headers,
+      ...options.headers,
     };
 
     const res = await fetch(`${baseUrl}${path}`, {
@@ -40,7 +40,7 @@ export const serverFetch = async (path, options = {}) => {
   }
 };
 
-export const serverMutation = async (path, data, method = "POST") => {
+export const serverMutation = async (path, data, method = "POST", options = {}) => {
   try {
     // console.log(`API Call: ${method} ${baseUrl}${path}`);
     // console.log(` Payload:`, data);
@@ -49,7 +49,7 @@ export const serverMutation = async (path, data, method = "POST") => {
       method,
       headers: {
         "Content-Type": "application/json",
-        // ...await authHeader()
+        ...options.headers,
       },
       body: JSON.stringify(data),
     });

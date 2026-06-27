@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 const PromptDetailsPage = async ({ params }) => {
   const { id } = await params;
   const prompt = await getPromptById(id);
-  console.log("prompt details", prompt);
+  // console.log("prompt details", prompt);
 
   if (!prompt) return notFound();
 

@@ -9,6 +9,7 @@ import {
   Star, StarOff, Trash2, MessageSquare, AlertTriangle,
   ChevronLeft, ChevronRight
 } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 const API_BASE = process.env.NEXT_PUBLIC_BASE_URL;
 const ITEMS_PER_PAGE = 10;
@@ -38,9 +39,16 @@ const AdminAllPromptPage = () => {
 
   const fetchPrompts = async (page = 1) => {
     setLoading(true);
+    const {data:tokenData} = await authClient.token();
+    console.log('token form admin all prompt',tokenData);
     try {
       const res = await fetch(
-        `${API_BASE}/api/admin/prompts?status=${filter}&page=${page}&limit=${ITEMS_PER_PAGE}`
+        `${API_BASE}/api/admin/prompts?status=${filter}&page=${page}&limit=${ITEMS_PER_PAGE}`,{
+          headers: {
+            'Content-Type': 'application/json',
+            authorization: `Bearer ${tokenData?.token}`
+          }
+        }
       );
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();

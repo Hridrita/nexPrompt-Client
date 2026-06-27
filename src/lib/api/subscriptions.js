@@ -1,11 +1,22 @@
+import { getAuthToken } from "../authAction";
 import { serverFetch } from "../core/server";
 
 
 export const getAllSubscriptions = async () => {
-  return serverFetch("/api/admin/subscriptions");
+  const token = await getAuthToken();
+  return serverFetch("/api/admin/subscriptions",{
+    headers: {
+      authorization: `Bearer ${token}`
+    }
+  });
 };
 
 
 export const getSubscriptionStats = async () => {
-  return serverFetch("/api/admin/subscriptions/stats");
+  const token = await getAuthToken();
+  return serverFetch("/api/admin/subscriptions/stats",{
+    headers: {
+      authorization: `Bearer ${token}`
+    }
+  });
 };

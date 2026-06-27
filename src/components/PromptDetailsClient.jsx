@@ -94,7 +94,7 @@ const PromptDetailsClient = ({ prompt }) => {
     createdAt,
     visibility,
   } = prompt;
-  console.log('prompt details for creator details', prompt);
+  // console.log('prompt details for creator details', prompt);
 
   const [localCopyCount, setLocalCopyCount] = useState(copyCount);
 

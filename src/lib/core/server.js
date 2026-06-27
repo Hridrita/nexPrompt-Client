@@ -1,13 +1,43 @@
+import { getToken } from "./session";
+
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
-export const serverFetch = async (path) => {
-  const res = await fetch(`${baseUrl}${path}`, {
-    cache: "no-store",
-  });
-  if (!res.ok) return null;
+export const authHeader = async() =>{
+  const token = await getToken();
+  console.log("cookies:", h.get("cookie"));
+  const header = token ?  {
+    authorization: `Bearer ${token}`
+  } : {};
 
-  const text = await res.text();
-  return text ? JSON.parse(text) : null;
+  return header;
+}
+
+export const serverFetch = async (path, options = {}) => {
+  try {
+    const headers = {
+      "Content-Type": "application/json",
+      // ...await authHeader(),
+      // ...options.headers,
+    };
+
+    const res = await fetch(`${baseUrl}${path}`, {
+      ...options,
+      headers,
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error(`API Error (${res.status}):`, errorText);
+      return null;
+    }
+
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  } catch (error) {
+    console.error("Server Fetch Error:", error);
+    return null;
+  }
 };
 
 export const serverMutation = async (path, data, method = "POST") => {
@@ -19,13 +49,14 @@ export const serverMutation = async (path, data, method = "POST") => {
       method,
       headers: {
         "Content-Type": "application/json",
+        // ...await authHeader()
       },
       body: JSON.stringify(data),
     });
 
     //Response text 
     const responseText = await res.text();
-    console.log(`📨 Response:`, responseText);
+    console.log(`Response:`, responseText);
 
     //JSON parse
     let jsonData;

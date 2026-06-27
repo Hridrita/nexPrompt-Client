@@ -8,7 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 const Navbar = () => {
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
-  console.log("user session", user);
+  // console.log("user session", session);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);

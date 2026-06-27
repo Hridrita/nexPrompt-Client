@@ -1,3 +1,5 @@
+import { getAuthToken } from "../authAction";
+
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
 export const getPrompts = async (filters = {}) => {
@@ -72,7 +74,14 @@ export const getPromptsByCreators = async(userId) =>{
 }
 
 export const getPromptById = async(id) =>{
-    const res = await fetch(`${baseUrl}/api/prompts/${id}`)
+  const token = await getAuthToken();
+  console.log('token', token);
+  
+    const res = await fetch(`${baseUrl}/api/prompts/${id}`,{
+        headers: {
+            authorization: `Bearer ${token}`
+        }
+    })
     if(!res.ok) return null;
     const data = await res.json();
     console.log("prompt data:", data);

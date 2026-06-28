@@ -35,6 +35,7 @@ export default function AddPromptForm() {
   const [submitting, setSubmitting] = useState(false);
   const [promptCount, setPromptCount] = useState(0);
   const [isLoadingCount, setIsLoadingCount] = useState(true);
+  const [userPlan, setUserPlan] = useState(null);
   const { data: session } = authClient.useSession();
   const user = session?.user;
 
@@ -55,7 +56,7 @@ export default function AddPromptForm() {
 
   useEffect(() => {
     if (user?.id) {
-      fetchPromptCount(user.id);
+      fetchUserData(user.id);
     }
   }, [user?.id]);
 
@@ -82,6 +83,27 @@ export default function AddPromptForm() {
       setIsLoadingCount(false);
     }
   };
+
+  const fetchUserData = async (userId) => {
+  const { data: tokenData } = await authClient.token();
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  
+  // plan fetch
+  const planRes = await fetch(`${baseUrl}/api/users/${userId}/plan`, {
+    headers: { authorization: `Bearer ${tokenData?.token}` }
+  });
+  const planData = await planRes.json();
+  setUserPlan(planData.plan);
+  
+  // prompt count fetch
+  const promptRes = await fetch(`${baseUrl}/api/prompts/creator/${userId}`, {
+    cache: "no-store",
+    headers: { authorization: `Bearer ${tokenData?.token}` }
+  });
+  const data = await promptRes.json();
+  setPromptCount(data.length);
+  setIsLoadingCount(false);
+};
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -168,7 +190,8 @@ export default function AddPromptForm() {
   const errorClass = "text-xs text-red-500 mt-1";
 
   // const isFreeUser = user?.plan === "free_user" || !user?.plan;
-  const isFreeUser = user?.plan !== "premium";
+  // const isFreeUser = userPlan !== "premium";
+  const isFreeUser = userPlan !== null && userPlan !== "premium";
   const limitReached = isFreeUser && promptCount >= 3;
 
   if (isLoadingCount) {

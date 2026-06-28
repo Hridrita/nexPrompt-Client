@@ -168,7 +168,7 @@ const Navbar = () => {
             >
               All Prompt
             </Link>
-            {/* ✅ শুধু user থাকলেই Dashboard দেখাবে */}
+            
             {user && (
               <Link
                 href={dashboardUrl}

@@ -49,7 +49,7 @@ export default async function Success({ searchParams }) {
 
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center pt-32 px-4">
-        <SessionRefresher></SessionRefresher>
+        <SessionRefresher redirectTo={redirectTo}></SessionRefresher>
         <RedirectHandler url={redirectTo} />
         <div className="max-w-md w-full bg-white p-8 rounded-3xl shadow-xl border border-slate-100 text-center">
           {/* Success Icon */}

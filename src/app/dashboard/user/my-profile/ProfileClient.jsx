@@ -20,7 +20,6 @@ const ProfileClient = ({ initialUser }) => {
       }
 
       try {
-        // ✅ প্ল্যান চেক করুন
         const { data: tokenData } = await authClient.token();
         const token = tokenData?.token || tokenData?.access_token;
         
@@ -35,13 +34,13 @@ const ProfileClient = ({ initialUser }) => {
           const planData = await planRes.json();
           setUser(prev => ({ ...prev, plan: planData.plan }));
           
-          // ✅ সেশন রিফ্রেশ করুন যদি প্ল্যান পরিবর্তন হয়
+          //session refresh after plan chnage
           if (planData.plan === 'premium' && session?.user?.plan !== 'premium') {
             await refetchSession();
           }
         }
 
-        // ✅ প্রম্পট কাউন্ট ফেচ করুন
+        //fetch prompt count
         const promptRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/prompts/creator/${initialUser.id}`, {
           headers: { authorization: `Bearer ${token}` }
         });

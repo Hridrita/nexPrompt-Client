@@ -22,7 +22,8 @@ export default async function Success({ searchParams }) {
   const session = await stripe.checkout.sessions.retrieve(session_id, {
     expand: ['line_items', 'payment_intent']
   });
-
+  
+  const stripeSession = await stripe.checkout.sessions.retrieve(session_id);
   const status = session.status;
   const customerEmail = session.customer_details.email;
 

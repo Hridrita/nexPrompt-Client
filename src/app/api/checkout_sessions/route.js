@@ -16,6 +16,13 @@ export async function POST(req) {
     const user = await getUserSession();
     const priceId = process.env.STRIPE_PRICE_ID;
 
+     if (!user?.email) {
+      return NextResponse.json(
+        { error: "Please login first" },
+        { status: 401 }
+      );
+    }
+
     // Create Checkout Sessions from body params.
     const session = await stripe.checkout.sessions.create({
         customer_email: user?.email,
@@ -31,6 +38,7 @@ export async function POST(req) {
       metadata: {
         redirect: redirect,
         userId: user?.id || '',
+        email: user.email || '',
       },
     });
     return NextResponse.redirect(session.url, 303)

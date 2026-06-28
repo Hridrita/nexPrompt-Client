@@ -664,7 +664,7 @@ const PromptDetailsClient = ({ prompt, isLocked: initialIsLocked = false }) => {
                 )}
                 <div className="min-w-0">
                   <p className="truncate text-[14.5px] text-[#115a88] font-bold">
-                    {creator.name.toUpperCase() || "Unknown creator"}
+                    {creator.name?.toUpperCase() || "Unknown creator"}
                   </p>
                   {creator.role && (
                     <p className="truncate text-[12.5px] text-gray-500">

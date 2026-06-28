@@ -6,6 +6,7 @@ import { Library } from 'lucide-react';
 const SavedPromptsPage = async () => {
   const user = await getUserSession();
   const bookmarks = await getBookmarkedPromptByUser(user.id);
+  console.log("bookmarks data", bookmarks);
 
   return (
     <div className="min-h-screen bg-[#EEF4F8] rounded-2xl px-4 sm:px-8 py-8 max-w-5xl mx-auto">

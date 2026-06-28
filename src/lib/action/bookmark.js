@@ -1,16 +1,35 @@
 'use server'
 import { revalidatePath } from "next/cache";
 import { serverMutation } from "../core/server"
+import { getAuthToken } from "../authAction";
 
 export const addBookmark = async(bookmarkData) =>{
-    await serverMutation('/api/bookmark', bookmarkData);
-    return serverMutation(`/api/prompts/${bookmarkData.promptId}/bookmark`,{}, "PATCH");
+    const token = await getAuthToken();
+    await serverMutation('/api/bookmark', bookmarkData,"POST",{
+        headers: {
+            authorization: `Bearer ${token}`
+        }
+    });
+    return serverMutation(`/api/prompts/${bookmarkData.promptId}/bookmark`,{}, "PATCH",{
+        headers: {
+            authorization: `Bearer ${token}`
+        }
+    });
 }
 
 export const removeBookmark = async (data) => {
+    const token = await getAuthToken();
     try {
-        await serverMutation('/api/bookmark/remove', data, "DELETE");
-        await serverMutation(`/api/prompts/${data.promptId}/bookmark/decrement`, {}, "PATCH");
+        await serverMutation('/api/bookmark/remove', data, "DELETE",{
+            headers: {
+                authorization: `Bearer ${token}`
+            }
+        });
+        await serverMutation(`/api/prompts/${data.promptId}/bookmark/decrement`, {}, "PATCH",{
+            headers: {
+                authorization: `Bearer ${token}`
+            }
+        });
         
         revalidatePath('/dashboard/user/saved-prompts');
         

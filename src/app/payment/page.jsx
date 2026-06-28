@@ -1,12 +1,10 @@
-// app/payment/page.jsx
-
 "use client";
 import React, { Suspense } from "react";
 import { CheckCircle, Crown, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 
-// ✅ Separate component that uses useSearchParams
+
 function PaymentContent() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/all-prompt";

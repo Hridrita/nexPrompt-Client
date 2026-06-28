@@ -1,8 +1,14 @@
 'use server'
 
+import { getAuthToken } from "../authAction";
 import { serverMutation } from "../core/server";
 
 
 export const addSubscription = async (data) => {
-  return await serverMutation('/api/subscription', data, "POST");
+  const token = await getAuthToken();
+  return await serverMutation('/api/subscription', data, "POST",{
+    headers: {
+      authorization: `Bearer ${token}`
+    }
+  });
 };

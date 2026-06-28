@@ -13,6 +13,7 @@ const CATEGORY_STYLES = {
 };
 
 const BookmarkCard = ({ promptID, title, category = 'writing', userId }) => {
+  console.log("BookmarkCard received promptID:", promptID);
   const style = CATEGORY_STYLES[category] ?? CATEGORY_STYLES.writing;
 
   const handleRemove = async () => {

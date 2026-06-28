@@ -64,10 +64,11 @@ const formatDate = (dateStr) => {
   }
 };
 
-const PromptDetailsClient = ({ prompt }) => {
-  const { data: session } = authClient.useSession();
+const PromptDetailsClient = ({ prompt, isLocked: initialIsLocked = false }) => {
+  const { data: session, refetch: refetchSession } = authClient.useSession();
   const user = session?.user;
   const router = useRouter();
+
 
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -102,11 +103,51 @@ const PromptDetailsClient = ({ prompt }) => {
   const diffStyle = getDifficultyStyle(difficulty);
   const visibleReviews = showAllReviews ? reviews : reviews.slice(0, 3);
   const [localRating, setLocalRating] = useState(Number(rating) || 0);
+  const [isPremiumUser, setIsPremiumUser] = useState(false);
+  const [isLocked, setIsLocked] = useState(initialIsLocked);
+  
 
   // Premium lock logic
   const isPrivate = visibility === "private";
-  const isPremiumUser = user?.plan === "premium";
-  const isLocked = isPrivate && !isPremiumUser;
+  // const isPremiumUser = user?.plan === "premium";
+  // const isLocked = isPrivate && !isPremiumUser;
+  const finalIsLocked = isPrivate && !isPremiumUser;
+
+   useEffect(() => {
+  if (!user?.id) return;
+  
+  const fetchPlan = async () => {
+    try {
+      const { data: tokenData } = await authClient.token();
+      const token = tokenData?.token || tokenData?.access_token;
+      
+      // ✅ ইউজার প্ল্যান চেক করুন
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${user.id}/plan`,
+        { headers: { authorization: `Bearer ${token}` } }
+      );
+      
+      if (res.ok) {
+        const data = await res.json();
+        const isPremium = data.plan === "premium";
+        setIsPremiumUser(isPremium);
+        
+        // ✅ যদি প্রিমিয়াম হয় এবং লক থাকে
+        if (isPremium && isLocked) {
+          // ✅ সেশন রিফ্রেশ করুন
+          await refetchSession();
+          
+          // ✅ পেজ রিলোড করুন (নতুন ডেটা আনতে)
+          window.location.reload();
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching plan:", error);
+    }
+  };
+  
+  fetchPlan();
+}, [user?.id]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -166,11 +207,16 @@ const PromptDetailsClient = ({ prompt }) => {
 
     setSubmitting(true);
     try {
+      const {data:tokenData} = await authClient.token();
+      const token = tokenData?.token || tokenData?.access_token;
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/prompts/${prompt._id}/review`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`
+           },
           body: JSON.stringify({
             name: user.name,
             email: user.email,

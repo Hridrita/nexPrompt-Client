@@ -68,22 +68,71 @@ export const getPromptsFromCreators = async() =>{
 }
 
 export const getPromptsByCreators = async(userId) =>{
-    const res = await fetch(`${baseUrl}/api/prompts/creator/${userId}`)
+  const token = await getAuthToken();
+    const res = await fetch(`${baseUrl}/api/prompts/creator/${userId}`,{
+      headers: {
+        authorization: `Bearer ${token}`
+      }
+    })
     if(!res.ok) return null;
     return res.json();
 }
 
-export const getPromptById = async(id) =>{
-  const token = await getAuthToken();
-  console.log('token', token);
+// export const getPromptById = async(id) =>{
+//   const token = await getAuthToken();
+//   console.log('token', token);
 
-    const res = await fetch(`${baseUrl}/api/prompts/${id}`,{
-        headers: {
-            authorization: `Bearer ${token}`
-        }
-    })
-    if(!res.ok) return null;
+//     const res = await fetch(`${baseUrl}/api/prompts/${id}`,{
+//         headers: {
+//             authorization: `Bearer ${token}`
+//         }
+//     })
+//     if(!res.ok) return null;
+//     const data = await res.json();
+//     // console.log("prompt data:", data);
+//     return data;
+// }
+
+
+
+
+
+export const getPromptById = async (id) => {
+  const token = await getAuthToken();
+
+  try {
+    const res = await fetch(`${baseUrl}/api/prompts/${id}`, {
+      headers: {
+        authorization: `Bearer ${token}`
+      },
+      cache: 'no-store'
+    });
+    
+   
+    if (res.status === 403) {
+      const errorData = await res.json();
+      
+      return {
+        error: true,
+        isLocked: true,
+        status: 403,
+        message: errorData.message || "Premium subscription required",
+        visibility: "private",
+        _id: id
+      };
+    }
+    
+    if (!res.ok) {
+      return null;
+    }
+    
     const data = await res.json();
-    // console.log("prompt data:", data);
-    return data;
-}
+    return {
+      ...data,
+      isLocked: false
+    };
+  } catch (error) {
+    console.error("Error fetching prompt:", error);
+    return null;
+  }
+};

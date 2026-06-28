@@ -40,7 +40,7 @@ const AdminAllPromptPage = () => {
   const fetchPrompts = async (page = 1) => {
     setLoading(true);
     const {data:tokenData} = await authClient.token();
-    console.log('token form admin all prompt',tokenData);
+    // console.log('token form admin all prompt',tokenData);
     try {
       const res = await fetch(
         `${API_BASE}/api/admin/prompts?status=${filter}&page=${page}&limit=${ITEMS_PER_PAGE}`,{

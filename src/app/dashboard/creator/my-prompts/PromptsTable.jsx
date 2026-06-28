@@ -7,6 +7,7 @@ import { Pencil, TrashBin, Xmark, ChevronDown, Eye } from "@gravity-ui/icons";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { authClient } from "@/lib/auth-client";
 
 const statusStyles = {
   pending: "bg-amber-50 text-amber-700 ring-amber-600/20",
@@ -54,6 +55,7 @@ export default function PromptsTable({ prompts }) {
   const [busyId, setBusyId] = useState(null);
 
   const handleDeleteConfirm = async () => {
+    const {data:tokenData} = await authClient.token();
     if (!deleteTarget) return;
     const id = deleteTarget._id?.$oid || deleteTarget._id;
     setBusyId(id);
@@ -62,7 +64,10 @@ export default function PromptsTable({ prompts }) {
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/prompts/${id}`,
         {
           method: "DELETE",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`
+           },
         },
       );
       if (!res.ok) throw new Error("Delete failed");
@@ -77,6 +82,7 @@ export default function PromptsTable({ prompts }) {
   };
 
   const handleUpdateSubmit = async (formData) => {
+    const {data:tokenData} = await authClient.token();
     const id = editingPrompt._id?.$oid || editingPrompt._id;
     setBusyId(id);
     try {
@@ -84,7 +90,10 @@ export default function PromptsTable({ prompts }) {
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/prompts/${id}`,
         {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`
+          },
           body: JSON.stringify(formData),
         },
       );

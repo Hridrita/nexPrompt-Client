@@ -1,8 +1,14 @@
 'use server'
-import { revalidatePath } from "next/cache";
+
 import { serverMutation } from "../core/server"
+import { getAuthToken } from "../authAction";
 
 export const getCopyCount = async(data) =>{
-    return serverMutation(`/api/prompts/${data.promptId}/copy`, {}, "PATCH");
+    const token = await getAuthToken();
+    return serverMutation(`/api/prompts/${data.promptId}/copy`, {}, "PATCH",{
+        headers: {
+            authorization: `Bearer ${token}`
+        }
+    });
     
 }

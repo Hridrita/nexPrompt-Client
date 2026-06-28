@@ -60,10 +60,14 @@ export default function AddPromptForm() {
   }, [user?.id]);
 
   const fetchPromptCount = async (userId) => {
+    const {data:tokenData} = await authClient.token()
     try {
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
       const res = await fetch(`${baseUrl}/api/prompts/creator/${userId}`, {
-        cache: "no-store"
+        cache: "no-store",
+        headers: {
+          authorization: `Bearer ${tokenData?.token}`
+        }
       });
       
       if (!res.ok) {
@@ -163,7 +167,8 @@ export default function AddPromptForm() {
   const labelClass = "text-sm font-medium text-[#115a88] mb-1.5 block";
   const errorClass = "text-xs text-red-500 mt-1";
 
-  const isFreeUser = user?.plan === "free_user" || !user?.plan;
+  // const isFreeUser = user?.plan === "free_user" || !user?.plan;
+  const isFreeUser = user?.plan !== "premium";
   const limitReached = isFreeUser && promptCount >= 3;
 
   if (isLoadingCount) {
@@ -202,7 +207,7 @@ export default function AddPromptForm() {
                 Upgrade Now
               </a>
               <a 
-                href="/my-prompts" 
+                href="/dashboard/user/my-prompts" 
                 className="border border-[#C7DFEA] text-gray-700 px-8 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all"
               >
                 View My Prompts
@@ -262,7 +267,7 @@ export default function AddPromptForm() {
                 </p>
                 <div className="w-24 sm:w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-gradient-to-r from-[#066a9b] to-[#0a9fd4] rounded-full transition-all duration-500"
+                    className="h-full bg-red-500 rounded-full transition-all duration-500"
                     style={{ width: `${Math.min((promptCount / 3) * 100, 100)}%` }}
                   />
                 </div>

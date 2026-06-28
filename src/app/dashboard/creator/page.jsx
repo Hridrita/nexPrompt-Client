@@ -125,7 +125,7 @@ export default function CreatorDashboard() {
   // Calculate change percentage (mock for now)
   const getChange = (value) => {
     if (value === 0) return "+0%";
-    // This is a mock calculation - you can implement real comparison
+    
     return value > 50 ? "+12.4%" : value > 20 ? "+8.1%" : "+5.6%";
   };
 

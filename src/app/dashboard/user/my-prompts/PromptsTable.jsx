@@ -1,5 +1,3 @@
-// PromptsTable.jsx
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -10,6 +8,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { NotebookPen } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 const statusStyles = {
   pending: "bg-amber-50 text-amber-700 ring-amber-600/20",
@@ -47,6 +46,7 @@ export default function PromptsTable({ prompts: initialPrompts }) {
   useEffect(() => { setPrompts(initialPrompts); }, [initialPrompts]);
 
   const handleDeleteConfirm = async () => {
+    const {data:tokenData} = await authClient.token();
     if (!deleteTarget) return;
     const id = deleteTarget._id?.$oid || deleteTarget._id;
     setBusyId(id);
@@ -54,7 +54,10 @@ export default function PromptsTable({ prompts: initialPrompts }) {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/prompts/${id}`, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          authorization:  `Bearer ${tokenData?.token}`
+        },
       });
       if (!res.ok) throw new Error("Delete failed");
       toast.success(`${deleteTarget.title} deleted successfully!`);
@@ -73,9 +76,13 @@ export default function PromptsTable({ prompts: initialPrompts }) {
     setBusyId(id);
     setPrompts(prev => prev.map(p => (p._id?.$oid || p._id) === id ? { ...p, ...formData } : p));
     try {
+      const {data:tokenData} = await authClient.token();
       const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/prompts/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json" ,
+          authorization: `Bearer ${tokenData?.token}`
+        },
         body: JSON.stringify(formData),
       });
       if (!res.ok) throw new Error("Update failed");

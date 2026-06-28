@@ -6,9 +6,9 @@ import { serverMutation } from "../core/server";
 
 export const addSubscription = async (data) => {
   const token = await getAuthToken();
-  return await serverMutation('/api/subscription', data, "POST",{
+  return await serverMutation('/api/subscription', data, "POST", {
     headers: {
-      authorization: `Bearer ${token}`
+      'x-internal-secret': process.env.INTERNAL_SECRET
     }
   });
 };

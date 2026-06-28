@@ -4,9 +4,9 @@ import { serverMutation } from "../core/server";
 
 export const updateUserPlan = async (data) => {
   const token = await getAuthToken();
-  return await serverMutation('/api/users/plan', data, "PATCH",{
+  return await serverMutation('/api/users/plan', data, "PATCH", {
     headers: {
-      authorization: `Bearer ${token}`
+      'x-internal-secret': process.env.INTERNAL_SECRET
     }
   });
 };

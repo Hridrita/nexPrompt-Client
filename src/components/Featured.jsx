@@ -31,9 +31,18 @@ const Featured = () => {
     setLoading(true);
     try {
       const data = await getFeaturedPrompts();
+      if ((!data || data.length === 0) && retryCount < 2) {
+      // retry after 1.5s
+      setTimeout(() => fetchFeaturedPrompts(retryCount + 1), 1500);
+      return;
+    }
       setPrompts(data || []);
     } catch (error) {
-      console.error("Error fetching featured prompts:", error);
+      if (retryCount < 2) {
+      setTimeout(() => fetchFeaturedPrompts(retryCount + 1), 1500);
+      return;
+    }
+      // console.error("Error fetching featured prompts:", error);
       toast.error("Failed to load featured prompts");
     } finally {
       setLoading(false);

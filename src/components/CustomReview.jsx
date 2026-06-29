@@ -106,15 +106,23 @@ export function CustomerReviews() {
       const data = await getAllReviews();
       if (data?.success) {
         setReviews(data.reviews || []);
-      } else {
+        setLoading(false);
+      }else if (retryCount < 2) {
+      setTimeout(() => fetchReviews(retryCount + 1), 1500);
+    } else {
         setReviews([]);
+        setLoading(false);
       }
     } catch (error) {
-      console.error("Error fetching reviews:", error);
+      // console.error("Error fetching reviews:", error);
+      if (retryCount < 2) {
+      setTimeout(() => fetchReviews(retryCount + 1), 1500);
+    } else {
+      setReviews([]);
+      setLoading(false);
+    }
       toast.error("Failed to load reviews");
       setReviews([]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -127,8 +135,13 @@ export function CustomerReviews() {
           average: data.averageRating || 0,
           distribution: data.ratingDistribution || []
         });
-      }
+      } else if (retryCount < 2) {
+      setTimeout(() => fetchStats(retryCount + 1), 1500);
+    }
     } catch (error) {
+      if (retryCount < 2) {
+      setTimeout(() => fetchStats(retryCount + 1), 1500);
+    }
       console.error("Error fetching stats:", error);
     }
   };

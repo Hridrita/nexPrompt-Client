@@ -37,16 +37,23 @@ export function TopCreators() {
       const data = await getTopCreators(4);
       if (data?.success) {
         setCreators(data.creators || []);
-      } else {
+        setLoading(false);
+      } else if (retryCount < 2) {
+      setTimeout(() => fetchTopCreators(retryCount + 1), 1500);
+    } else {
         setCreators([]);
+        setLoading(false);
       }
     } catch (error) {
-      console.error("Error fetching top creators:", error);
-      toast.error("Failed to load top creators");
+      if (retryCount < 2) {
+      setTimeout(() => fetchTopCreators(retryCount + 1), 1500);
+    } else {
       setCreators([]);
-    } finally {
       setLoading(false);
     }
+      // console.error("Error fetching top creators:", error);
+      
+    } 
   };
 
   const formatNumber = (num) => {
